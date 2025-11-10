@@ -2,14 +2,17 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8" />
-  <title>About Me – Dynamic Frutiger Aero</title>
+  <title>About Me – Dynamic Frutiger Aero x 7.css</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- Tailwind CSS (utility + layout complesso) -->
+  <!-- Tailwind CSS -->
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
 
-  <!-- Animate.css per microanimazioni dichiarative -->
+  <!-- Animate.css -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css" />
+
+  <!-- 7.css scoped (Win7 UI inside .win7) -->
+  <link rel="stylesheet" href="https://unpkg.com/7.css/dist/7.scoped.css" />
 
   <style>
     :root {
@@ -132,29 +135,6 @@
       color: transparent;
     }
 
-    .skill-bar-track {
-      width: 100%;
-      height: 7px;
-      border-radius: 999px;
-      background: rgba(9, 21, 46, 0.95);
-      overflow: hidden;
-      position: relative;
-    }
-
-    .skill-bar-fill {
-      height: 100%;
-      border-radius: 999px;
-      background: linear-gradient(90deg, var(--faero-accent-1), var(--faero-accent-3));
-      transform-origin: left center;
-      transform: scaleX(0);
-      transition: transform 420ms ease-out;
-    }
-
-    .skill-label {
-      font-size: 0.72rem;
-      color: #9fb8ff;
-    }
-
     .timeline {
       border-left: 1px solid rgba(65,225,255,0.25);
       padding-left: 1rem;
@@ -186,6 +166,42 @@
       border: 1px solid rgba(255,157,245,0.2);
       color: #ffdfff;
     }
+
+    /* 7.css integrazione minimale */
+    .win7 {
+      font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+    }
+
+    .win7 .window {
+      margin: 0;
+      border-radius: 6px;
+    }
+
+    .win7 .title-bar-text {
+      font-size: 0.72rem;
+    }
+
+    .win7 .window-body {
+      font-size: 0.7rem;
+    }
+
+    .win7 .status-bar {
+      font-size: 0.63rem;
+    }
+
+    /* Layout extra: sezione bassa con 7.css */
+    .faero-lower-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 2fr) minmax(260px, 1.4fr);
+      gap: var(--faero-grid-gap);
+      margin-top: 1.2rem;
+    }
+
+    @media (max-width: 900px) {
+      .faero-lower-grid {
+        grid-template-columns: 1fr;
+      }
+    }
   </style>
 </head>
 <body>
@@ -193,18 +209,18 @@
 
 <div id="app" class="max-w-6xl mx-auto px-4 py-8 space-y-6">
 
-  <!-- HEADER PRINCIPALE -->
+  <!-- HEADER -->
   <header class="faero-glass p-5 md:p-7 animate__animated animate__fadeIn">
     <div class="flex flex-wrap items-center justify-between gap-4">
       <div class="space-y-2">
         <div class="faero-pill">
           <span class="status-dot"></span>
-          <span id="live-status-label">Calcolo presenza...</span>
+          <span id="live-status-label">Calcolo presenza</span>
         </div>
         <h1 class="text-2xl md:text-3xl font-semibold leading-tight">
-          <span class="gradient-text">[Il tuo nome]</span>
+          <span id="profile-name" class="gradient-text">[Il tuo nome]</span>
           <span class="text-sm md:text-base text-blue-200 block">
-            Architect di sistemi AI-driven, automation engineer e sviluppatore full-stack.
+            Architect di sistemi AI driven, automation engineer e sviluppatore full stack.
           </span>
         </h1>
       </div>
@@ -222,7 +238,8 @@
 
   <!-- GRID PRINCIPALE -->
   <main class="faero-grid">
-    <!-- COLONNA SINISTRA: NARRATIVA TECNICA -->
+
+    <!-- COL SINISTRA -->
     <section class="faero-glass p-5 md:p-6 space-y-5 reveal">
       <h2 class="text-sm tracking-[0.18em] uppercase text-blue-300">
         Profilo tecnico
@@ -230,8 +247,8 @@
       <p class="text-sm md:text-[0.9rem] text-blue-100 leading-relaxed">
         Progetto, sviluppo e integro sistemi conversazionali e piattaforme AI
         che uniscono automazioni robuste, UX chiara e conformità normativa.
-        Lavoro con stack moderni, orchestrazione di modelli LLM local e cloud,
-        pipeline dati tracciabili e codice pensato per scalare senza rompersi.
+        Stack modulare, orchestrazione di modelli locali e cloud, pipeline dati tracciabili
+        e flussi idempotenti per evitare stati rotti.
       </p>
 
       <div class="grid md:grid-cols-3 gap-3 text-xs">
@@ -239,16 +256,16 @@
           <div class="font-semibold text-blue-100 mb-1">Stack core</div>
           <ul class="space-y-0.5 text-blue-200">
             <li>Node.js / TypeScript modulari</li>
-            <li>Web Components, SPA mirate</li>
+            <li>Architetture event driven</li>
             <li>PostgreSQL / Redis / JSON store</li>
           </ul>
         </div>
         <div>
           <div class="font-semibold text-blue-100 mb-1">AI & Ops</div>
           <ul class="space-y-0.5 text-blue-200">
-            <li>LLM orchestration, prompt design</li>
-            <li>Ollama & modelli on-device</li>
-            <li>Monitoring & logging strutturato</li>
+            <li>LLM orchestration e routing</li>
+            <li>Ollama e modelli on device</li>
+            <li>Monitoring, tracing, audit log</li>
           </ul>
         </div>
         <div>
@@ -256,25 +273,42 @@
           <ul class="space-y-0.5 text-blue-200">
             <li>Pattern a stati finiti per chatbot</li>
             <li>Rate limiting per chatId</li>
-            <li>GDPR-ready data design</li>
+            <li>GDPR ready data design</li>
           </ul>
         </div>
       </div>
 
-      <!-- TIMELINE DINAMICA -->
+      <!-- TIMELINE -->
       <div>
         <div class="flex items-center justify-between mb-2">
           <h3 class="text-xs uppercase tracking-[0.16em] text-blue-300">
             Traiettoria recente
           </h3>
-          <span id="xp-years" class="matrix-badge">Experience matrix: calcolo...</span>
+          <span id="xp-years" class="matrix-badge">Experience matrix</span>
         </div>
         <div id="timeline" class="timeline text-[0.78rem] text-blue-100"></div>
       </div>
+
+      <!-- META HIGHLIGHTS -->
+      <div class="grid md:grid-cols-3 gap-3 text-[0.78rem] text-blue-100">
+        <div>
+          <div class="font-semibold text-blue-200">Core patterns</div>
+          <p>Stati espliciti, rollback sicuri, validazioni coerenti tra frontend e backend.</p>
+        </div>
+        <div>
+          <div class="font-semibold text-blue-200">Performance</div>
+          <p>Riduzione tempi di risposta su flussi critici con caching e pre parsing.</p>
+        </div>
+        <div>
+          <div class="font-semibold text-blue-200">Affidabilità</div>
+          <p>Lock concorrenti, retry controllati, logging strutturato per debug rapido.</p>
+        </div>
+      </div>
     </section>
 
-    <!-- COLONNA DESTRA: COMPONENTE AVANZATA (WEB COMPONENT) -->
+    <!-- COL DESTRA -->
     <section class="space-y-4">
+
       <!-- SKILL MATRIX -->
       <section class="faero-glass p-4 md:p-5 reveal">
         <div class="flex items-center justify-between gap-2 mb-2">
@@ -282,13 +316,13 @@
             Skill matrix
           </h2>
           <span class="text-[0.65rem] text-blue-200">
-            Auto-render da struttura dati JS
+            Auto render da struttura dati
           </span>
         </div>
         <skill-matrix></skill-matrix>
       </section>
 
-      <!-- LIVE FOCUS / PROGETTI -->
+      <!-- FOCUS ATTUALE -->
       <section class="faero-glass p-4 md:p-5 reveal">
         <div class="flex items-center justify-between mb-2">
           <h2 class="text-xs uppercase tracking-[0.18em] text-blue-300">
@@ -298,47 +332,168 @@
         </div>
         <ul id="live-focus" class="list-disc list-inside text-[0.78rem] text-blue-100 space-y-1.5"></ul>
       </section>
+
+      <!-- 7.CSS: SYSTEM SNAPSHOT -->
+      <section class="faero-glass p-3 win7 reveal">
+        <div class="window" style="width:100%;">
+          <div class="title-bar">
+            <div class="title-bar-text">System snapshot</div>
+          </div>
+          <div class="window-body">
+            <p id="sys-role">Ruolo principale: AI systems & automation engineer</p>
+            <ul class="tree-view" id="sys-tree">
+              <li>Stacks attivi
+                <ul>
+                  <li>WhatsApp AI booking</li>
+                  <li>Dashboard analytics</li>
+                  <li>LLM on device</li>
+                </ul>
+              </li>
+              <li>Flag qualità
+                <ul>
+                  <li>Idempotenza flussi</li>
+                  <li>Log osservabili</li>
+                  <li>Design privacy by default</li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+          <div class="status-bar">
+            <p class="status-bar-field" id="sys-status">Profilo caricato</p>
+            <p class="status-bar-field">7.css scoped attivo</p>
+          </div>
+        </div>
+      </section>
+
     </section>
   </main>
 
-  <!-- FOOTER DINAMICO -->
+  <!-- LOWER GRID CON 7.CSS APPROFONDITO -->
+  <section class="faero-lower-grid reveal">
+
+    <!-- WIN7 WINDOW: PROJECTS / TABS -->
+    <div class="faero-glass p-3 win7">
+      <div class="window" style="width:100%;">
+        <div class="title-bar">
+          <div class="title-bar-text">Projects console</div>
+        </div>
+        <div class="window-body">
+          <!-- Tabs 7.css semantici -->
+          <div class="tabs" style="margin-bottom:0.5rem;">
+            <input type="radio" name="proj-tabs" id="tab-ai" checked />
+            <label for="tab-ai">AI systems</label>
+            <input type="radio" name="proj-tabs" id="tab-bots" />
+            <label for="tab-bots">Bots</label>
+            <input type="radio" name="proj-tabs" id="tab-ops" />
+            <label for="tab-ops">Ops</label>
+
+            <div class="tab-content" id="content-ai">
+              <ul class="list-disc list-inside text-[0.7rem]">
+                <li>Orchestrazione LLM ibrida con regole, fallback deterministici.</li>
+                <li>Motore di routing per richieste complesse multi step.</li>
+                <li>Analisi metriche per tuning dei modelli.</li>
+              </ul>
+            </div>
+            <div class="tab-content" id="content-bots">
+              <ul class="list-disc list-inside text-[0.7rem]">
+                <li>Assistenti WhatsApp per centri con gestione completa prenotazioni.</li>
+                <li>Menu di modifica stato consistente su edit date/time/staff.</li>
+                <li>Integrazione sito web con lo stesso motore conversazionale.</li>
+              </ul>
+            </div>
+            <div class="tab-content" id="content-ops">
+              <ul class="list-disc list-inside text-[0.7rem]">
+                <li>Pipeline di log centralizzata per tracing per chatId.</li>
+                <li>Dashboard HTML statiche con lettura JSON e grafici.</li>
+                <li>Policy di backup e gestione versioni di config.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="status-bar">
+          <p class="status-bar-field" id="proj-status">Tab attivo: AI systems</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- WIN7 WINDOW: CONTACT / META -->
+    <div class="faero-glass p-3 win7">
+      <div class="window" style="width:100%;">
+        <div class="title-bar">
+          <div class="title-bar-text">Contact & meta</div>
+        </div>
+        <div class="window-body">
+          <div class="field-row" style="align-items:flex-start;">
+            <label>Preferiti</label>
+            <div>
+              <p class="text-[0.7rem]">
+                Code first, documentazione chiara, deploy controllati.
+              </p>
+              <p class="text-[0.7rem]">
+                Collaborazioni con team che accettano metriche, non intuizioni vaghe.
+              </p>
+            </div>
+          </div>
+          <div class="field-row">
+            <label>Stack</label>
+            <select id="stack-select">
+              <option>AI booking</option>
+              <option>Monitoring</option>
+              <option>Compliance</option>
+            </select>
+          </div>
+          <p id="stack-description" class="text-[0.7rem]" style="margin-top:0.4rem;">
+            AI booking: motore conversazionale con stati chiari e logica antifrizione.
+          </p>
+        </div>
+        <div class="status-bar">
+          <p class="status-bar-field">Profilo dinamico locale</p>
+          <p class="status-bar-field">Ready for integration</p>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- FOOTER -->
   <footer class="faero-glass p-4 mt-4 flex flex-wrap items-center justify-between gap-2 text-[0.7rem] text-blue-200 reveal">
     <div>
       <span class="text-blue-300">Dynamic profile API:</span>
-      <span id="dynamic-summary">init...</span>
+      <span id="dynamic-summary">Init</span>
     </div>
     <div class="flex flex-wrap gap-1 items-center">
-      <span class="faero-tag">Code-first mindset</span>
+      <span class="faero-tag">Code first mindset</span>
       <span class="faero-tag">Design system thinking</span>
       <span class="faero-tag">Observability</span>
+      <span class="faero-tag">Win7 UI integration</span>
     </div>
   </footer>
 </div>
 
 <script type="module">
-  // Stato centrale: modifica i dati qui
+  // Stato centrale
   const state = {
     profile: {
       name: "[Il tuo nome]",
       baseRole: "AI systems & automation engineer",
-      startYear: 2020, // usato per xp dinamico
+      startYear: 2020,
       timezone: "Europe/Rome"
     },
     timeline: [
       {
         year: 2025,
         label: "Lead tecnico su piattaforme AI proprietarie",
-        details: "WhatsApp bots, orchestrazione LLM, gestione lock concorrenti, flussi edit_* complessi."
+        details: "Bots WhatsApp, orchestrazione LLM, stati edit_* consistenti, gestione lock."
       },
       {
         year: 2024,
-        label: "Integrazione stack AI on-prem",
-        details: "Ollama, modelli custom, audit log, controlli di coerenza e safe rollback."
+        label: "Integrazione stack AI on prem",
+        details: "Ollama, modelli custom, audit log, rollback sicuri."
       },
       {
         year: 2023,
-        label: "Full-stack & sistemi real-time",
-        details: "API Node/TS, interfacce dashboard, metriche live per booking e workload."
+        label: "Full stack e sistemi real time",
+        details: "API Node/TS, dashboard analitiche, metriche live prenotazioni."
       }
     ],
     skills: [
@@ -348,8 +503,8 @@
         items: [
           ["Node.js / TypeScript", 0.94],
           ["Architetture a stati per chatbot", 0.96],
-          ["Gestione concorrenza / locking", 0.9],
-          ["Logging strutturato & tracing", 0.88]
+          ["Gestione concorrenza e locking", 0.9],
+          ["Logging strutturato e tracing", 0.88]
         ]
       },
       {
@@ -357,9 +512,9 @@
         weight: 0.92,
         items: [
           ["Prompt engineering avanzato", 0.93],
-          ["Ollama / LLM on-device", 0.9],
+          ["Ollama / LLM on device", 0.9],
           ["Pipelines dati per training", 0.86],
-          ["Modelli ibridi regole+LLM", 0.9]
+          ["Modelli ibridi regole + LLM", 0.9]
         ]
       },
       {
@@ -368,28 +523,27 @@
         items: [
           ["Web Components / SPA mirate", 0.86],
           ["Design system Frutiger Aero", 0.82],
-          ["UI data-driven", 0.84]
+          ["UI data driven", 0.84]
         ]
       },
       {
         area: "Compliance & Reliability",
         weight: 0.82,
         items: [
-          ["GDPR-ready design", 0.83],
+          ["GDPR ready design", 0.83],
           ["Versioning configurazioni", 0.8],
-          ["Test end-to-end flussi complessi", 0.82]
+          ["Test end to end flussi complessi", 0.82]
         ]
       }
     ],
     focus: [
-      "Refactoring di flussi di prenotazione con stati espliciti e idempotenti.",
-      "Riduzione attrito utente: risposte brevi, precise, guidate dal contesto.",
+      "Refactoring dei flussi di prenotazione con stati espliciti e idempotenti.",
+      "Riduzione attrito utente con percorsi guidati, brevi e coerenti.",
       "Allineamento tra logica tecnica e requisiti legali dei clienti.",
-      "Sperimentazione con modelli locali per ridurre latenza e dipendenze."
+      "Sperimentazione con modelli locali per latenza e controllo."
     ]
   };
 
-  // Utilità
   const $ = (sel, root = document) => root.querySelector(sel);
 
   function setLiveClock() {
@@ -397,12 +551,14 @@
     if (!clockEl) return;
     const update = () => {
       const now = new Date();
-      clockEl.textContent = new Intl.DateTimeFormat("it-IT", {
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit"
-      }).format(now) + " • " + state.profile.timezone;
-      requestAnimationFrame(() => {}); // no-op, solo a scopo dimostrativo
+      clockEl.textContent =
+        new Intl.DateTimeFormat("it-IT", {
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit"
+        }).format(now) +
+        " • " +
+        state.profile.timezone;
     };
     update();
     setInterval(update, 1000);
@@ -413,10 +569,10 @@
     if (!el) return;
     const hour = new Date().getHours();
     let status;
-    if (hour >= 8 && hour < 13) status = "Online, in fase di sviluppo attivo.";
-    else if (hour >= 13 && hour < 19) status = "In analisi, design di sistemi e debugging.";
-    else if (hour >= 19 && hour < 23) status = "Operativo su revisioni e ottimizzazioni.";
-    else status = "In modalità low-noise: solo task critici.";
+    if (hour >= 8 && hour < 13) status = "Online in sviluppo attivo";
+    else if (hour >= 13 && hour < 19) status = "In analisi, design sistemi e debugging";
+    else if (hour >= 19 && hour < 23) status = "Operativo su revisioni e ottimizzazioni";
+    else status = "In modalità low noise per task critici";
     el.textContent = status;
   }
 
@@ -438,10 +594,10 @@
     const years = state.timeline.length
       ? (state.timeline[0].year - state.profile.startYear + 1)
       : (new Date().getFullYear() - state.profile.startYear);
-    $("#xp-years").textContent = `Experience matrix: ~${Math.max(years, 1)} anni`;
+    $("#xp-years").textContent = "Experience matrix: ~" + Math.max(years, 1) + " anni";
   }
 
-  // Web Component: Skill Matrix con Shadow DOM
+  // Web Component: Skill Matrix
   class SkillMatrix extends HTMLElement {
     constructor() {
       super();
@@ -530,7 +686,7 @@
       bars.forEach(bar => {
         const pct = Number(bar.dataset.pct || 0);
         requestAnimationFrame(() => {
-          bar.style.transform = `scaleX(${pct / 100})`;
+          bar.style.transform = "scaleX(" + pct / 100 + ")";
         });
       });
     }
@@ -538,7 +694,7 @@
 
   customElements.define("skill-matrix", SkillMatrix);
 
-  // Live focus rotante
+  // Live focus
   function renderLiveFocus() {
     const ul = $("#live-focus");
     const label = $("#focus-label");
@@ -554,25 +710,26 @@
     let idx = 0;
     setInterval(() => {
       idx = (idx + 1) % state.focus.length;
-      label.textContent = "Focus: " + (idx + 1) + "/" + state.focus.length;
+      label.textContent = "Focus " + (idx + 1) + "/" + state.focus.length;
       [...ul.children].forEach((li, i) => {
         li.classList.toggle("text-blue-50", i === idx);
       });
     }, 4600);
   }
 
-  // Riassunto dinamico
+  // Summary
   function renderSummary() {
     const el = $("#dynamic-summary");
     if (!el) return;
     const areas = state.skills.map(s => s.area.split("&")[0].trim());
     el.textContent =
-      `${state.profile.name || "Profilo"} opera su ` +
-      `${areas.length} domini chiave con pipeline AI-driven, ` +
-      `layer di automazione e attenzione strutturale alla resilienza.`;
+      (state.profile.name || "Profilo") +
+      " opera su " +
+      areas.length +
+      " domini chiave con pipeline AI driven, automazioni e resilienza strutturata.";
   }
 
-  // Orbita estetica cursore
+  // Orb
   function initOrb() {
     const orb = $("#orb");
     if (!orb) return;
@@ -589,13 +746,13 @@
     function loop() {
       x += (targetX - x) * 0.06;
       y += (targetY - y) * 0.06;
-      orb.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+      orb.style.transform = "translate3d(" + x + "px," + y + "px,0)";
       requestAnimationFrame(loop);
     }
     loop();
   }
 
-  // Reveal on scroll
+  // Reveal
   function initReveal() {
     const els = document.querySelectorAll(".reveal");
     const io = new IntersectionObserver(entries => {
@@ -609,7 +766,49 @@
     els.forEach(el => io.observe(el));
   }
 
-  // Inizializzazione
+  // 7.css extra dynamics
+  function initTabsStatus() {
+    const projStatus = $("#proj-status");
+    if (!projStatus) return;
+    const map = {
+      "tab-ai": "AI systems",
+      "tab-bots": "Bots",
+      "tab-ops": "Ops"
+    };
+    Object.keys(map).forEach(id => {
+      const input = document.getElementById(id);
+      if (input) {
+        input.addEventListener("change", () => {
+          if (input.checked) {
+            projStatus.textContent = "Tab attivo: " + map[id];
+          }
+        });
+      }
+    });
+  }
+
+  function initStackSelect() {
+    const select = $("#stack-select");
+    const desc = $("#stack-description");
+    if (!select || !desc) return;
+    const texts = {
+      "AI booking": "AI booking: motore conversazionale con stati chiari, gestione slot e reminder.",
+      "Monitoring": "Monitoring: log strutturati, alert mirati, osservabilità per debugging rapido.",
+      "Compliance": "Compliance: struttura dati coerente con GDPR e audit delle operazioni chiave."
+    };
+    select.addEventListener("change", () => {
+      desc.textContent = texts[select.value] || texts["AI booking"];
+    });
+  }
+
+  // Init
+  function initProfileName() {
+    const el = $("#profile-name");
+    if (el && state.profile.name && state.profile.name !== "[Il tuo nome]") {
+      el.textContent = state.profile.name;
+    }
+  }
+
   setLiveClock();
   setPresenceStatus();
   renderTimeline();
@@ -617,6 +816,9 @@
   renderSummary();
   initOrb();
   initReveal();
+  initTabsStatus();
+  initStackSelect();
+  initProfileName();
 </script>
 
 </body>
