@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>oakvx — synk / Δash</title>
+  <title>oakvx!!</title>
   <meta name="description" content="Sviluppatore full-stack (Node.js). Progetti 2025: synk (in sviluppo) e Δash (rilasciato)." />
   <meta name="theme-color" content="#0B0D12" />
 
@@ -621,14 +621,13 @@
   <header id="top">
     <div class="container hero">
       <div>
-        <div class="pill">Full-stack • Node.js • Product engineering</div>
+        <div class="pill">Node.js • Product engineering</div>
 
         <h1>Costruisco prodotti che automatizzano flussi operativi.</h1>
 
         <p class="lead">
-          Nel 2025 sto sviluppando <b>synk</b> (segretario AI in <b>Node.js</b>) e ho rilasciato <b>Δash</b>
-          (gestionale per officine). Lavoro su sistemi concreti: <b>data model</b>, integrazioni,
-          <b>RBAC</b>, <b>audit log</b>, <b>queue</b>, idempotenza e performance.
+          Nel 2025 sto sviluppando <b>synk</b> (un segretario AI in <b>Node.js</b>) e ho rilasciato <b>Δash</b>
+          (un gestionale per officine).
         </p>
 
         <div class="selling" aria-label="Selling now">
@@ -642,8 +641,7 @@
             <span class="pill" style="text-transform:none; letter-spacing:-.01em">Disponibilità: slot limitati</span>
           </div>
           <p>
-            Se hai un prodotto che deve diventare <b>robusto in produzione</b> (permessi, logging, stati, retry, integrazioni),
-            entro in modo chirurgico: <b>assessment</b> → <b>roadmap</b> → <b>implementazione</b> con standard “audit-first”.
+            Se hai un prodotto che deve diventare <b>robusto in produzione</b> contattami!
           </p>
           <div class="selling-actions">
             <a class="btn primary" href="#contact">Contattami</a>
@@ -669,7 +667,6 @@
         <div class="meta-row" aria-label="Principi">
           <span class="pill dev">synk: dev</span>
           <span class="pill ok">Δash: ready</span>
-          <span class="pill">audit-first</span>
         </div>
 
         <div style="height:12px"></div>
@@ -705,7 +702,7 @@
               <div class="project-top">
                 <div>
                   <span class="pill dev">in sviluppo</span>
-                  <h3>synk — segretario AI (Node.js)</h3>
+                  <h3>synk - segretario AI (Node.js)</h3>
                 </div>
                 <span class="pill">AI automation</span>
               </div>
@@ -753,7 +750,7 @@
               <div class="project-top">
                 <div>
                   <span class="pill ok">rilasciato</span>
-                  <h3>Δash — gestionale per officine</h3>
+                  <h3>Δash - gestionale per officine</h3>
                 </div>
                 <span class="pill">Data product</span>
               </div>
@@ -955,7 +952,7 @@
 
       <footer>
         <div class="footer-row">
-          <div>© 2026 oakvx — progetti 2025: synk / Δash</div>
+          <div>© 2026 oakvx - progetti 2025: synk / Δash</div>
           <div style="display:flex; gap:10px; flex-wrap:wrap">
             <a class="btn small ghost" href="#" id="openPalette2">Comandi <span class="kbd">Ctrl K</span></a>
           </div>
@@ -1029,7 +1026,7 @@
       const PROJECTS = {
         synk: {
           pill: { cls: "pill dev", text: "in sviluppo • 2025" },
-          title: "synk — segretario AI (Node.js)",
+          title: "synk - segretario AI (Node.js)",
           problem: "Richieste e follow-up distribuiti su canali diversi: informazioni non normalizzate, azioni manuali e assenza di tracciamento affidabile degli effetti.",
           solution: "Pipeline: ingest → normalizzazione → intent routing → tool execution su queue → output strutturato + audit trail. Focus su idempotenza, retry/backoff e policy layer per governare i side effects.",
           details: [
@@ -1055,13 +1052,12 @@
   -> router (intent/tools)
   -> queue (jobs: retry/backoff)
   -> providers (calendar, mail, crm)
-  -> db (events, logs, sessions)
   -> notifications (outbox/webhook)`,
           stack: ["Node.js", "LLM tools", "Queue/Jobs", "Webhooks", "Audit log"]
         },
         dash: {
           pill: { cls: "pill ok", text: "rilasciato • 2025" },
-          title: "Δash — gestionale per officine",
+          title: "Δash - gestionale per officine",
           problem: "Dati operativi frammentati (clienti, veicoli, interventi, ricambi), con storico poco coerente e permessi non formalizzati.",
           solution: "Data model relazionale + UI rapida: anagrafiche, interventi, ricambi, scadenze, report. RBAC e audit log per rendere le modifiche tracciabili e verificabili.",
           details: [
