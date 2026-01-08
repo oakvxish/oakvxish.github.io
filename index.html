@@ -1,1403 +1,1261 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="it">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>oakvx!!</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        :root {
-            --primary: #6366f1;
-            --secondary: #8b5cf6;
-            --accent: #ec4899;
-            --dark: #0f172a;
-            --light: #f8fafc;
-        }
-
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: var(--dark);
-            color: var(--light);
-            overflow-x: hidden;
-            cursor: none;
-        }
-
-        /* Custom Cursor */
-        .cursor {
-            width: 20px;
-            height: 20px;
-            border: 2px solid var(--primary);
-            border-radius: 50%;
-            position: fixed;
-            pointer-events: none;
-            z-index: 9999;
-            transition: all 0.1s ease;
-            transform: translate(-50%, -50%);
-            mix-blend-mode: difference;
-        }
-
-        .cursor-follower {
-            width: 40px;
-            height: 40px;
-            border: 1px solid var(--accent);
-            border-radius: 50%;
-            position: fixed;
-            pointer-events: none;
-            z-index: 9998;
-            transition: all 0.3s ease;
-            transform: translate(-50%, -50%);
-            opacity: 0.5;
-        }
-
-        .cursor-trail {
-            position: fixed;
-            width: 5px;
-            height: 5px;
-            background: var(--primary);
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 9997;
-            animation: fadeOut 0.5s ease-out forwards;
-        }
-
-        @keyframes fadeOut {
-            to {
-                opacity: 0;
-                transform: scale(0);
-            }
-        }
-
-        /* Particles Background */
-        #particles {
-            position: fixed;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-            z-index: 0;
-        }
-
-        /* Matrix Rain Effect */
-        #matrix {
-            position: fixed;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-            z-index: 0;
-            opacity: 0;
-            transition: opacity 1s;
-        }
-
-        #matrix.active {
-            opacity: 0.3;
-        }
-
-        /* Navigation */
-        nav {
-            position: fixed;
-            top: 0;
-            width: 100%;
-            background: rgba(15, 23, 42, 0.8);
-            backdrop-filter: blur(20px);
-            z-index: 1000;
-            padding: 1.5rem 0;
-            border-bottom: 1px solid rgba(99, 102, 241, 0.2);
-            transform: translateY(0);
-            transition: transform 0.3s ease;
-        }
-
-        nav.hidden {
-            transform: translateY(-100%);
-        }
-
-        nav ul {
-            display: flex;
-            justify-content: center;
-            gap: 2rem;
-            list-style: none;
-            flex-wrap: wrap;
-        }
-
-        nav a {
-            color: var(--light);
-            text-decoration: none;
-            font-weight: 500;
-            font-size: 0.9rem;
-            position: relative;
-            transition: color 0.3s;
-        }
-
-        nav a::after {
-            content: '';
-            position: absolute;
-            bottom: -5px;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background: linear-gradient(90deg, var(--primary), var(--accent));
-            transition: width 0.3s;
-        }
-
-        nav a:hover::after {
-            width: 100%;
-        }
-
-        /* Hero Section */
-        .hero {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: flex-start;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 2rem 4rem;
-            position: relative;
-            z-index: 1;
-        }
-
-        .hero h1 {
-            font-size: 6rem;
-            font-weight: 900;
-            background: linear-gradient(135deg, var(--primary), var(--accent));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 1rem;
-            letter-spacing: -3px;
-            opacity: 0;
-            animation: fadeInUp 1s ease forwards;
-            position: relative;
-        }
-
-        .hero h1::before,
-        .hero h1::after {
-            content: attr(data-text);
-            position: absolute;
-            top: 0;
-            left: 0;
-            opacity: 0.8;
-        }
-
-        .hero h1::before {
-            animation: glitch1 2s infinite;
-            color: #ff00de;
-            z-index: -1;
-        }
-
-        .hero h1::after {
-            animation: glitch2 2s infinite;
-            color: #00fff9;
-            z-index: -2;
-        }
-
-        @keyframes glitch1 {
-            0%, 100% { transform: translate(0); opacity: 0; }
-            20% { transform: translate(-2px, 2px); opacity: 0.8; }
-            40% { transform: translate(-2px, -2px); opacity: 0; }
-        }
-
-        @keyframes glitch2 {
-            0%, 100% { transform: translate(0); opacity: 0; }
-            60% { transform: translate(2px, 2px); opacity: 0.8; }
-            80% { transform: translate(2px, -2px); opacity: 0; }
-        }
-
-        @keyframes fadeInUp {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-        }
-
-        .hero .subtitle {
-            font-size: 1.5rem;
-            color: #94a3b8;
-            max-width: 600px;
-            margin-bottom: 2rem;
-            opacity: 0;
-            animation: fadeInUp 1s ease 0.2s forwards;
-        }
-
-        .typing-text {
-            font-size: 1.2rem;
-            color: var(--accent);
-            margin-bottom: 2rem;
-            opacity: 0;
-            animation: fadeInUp 1s ease 0.4s forwards;
-            min-height: 30px;
-        }
-
-        .cursor-blink {
-            animation: blink 0.7s infinite;
-        }
-
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0; }
-        }
-
-        .cta-buttons {
-            display: flex;
-            gap: 1rem;
-            opacity: 0;
-            animation: fadeInUp 1s ease 0.6s forwards;
-        }
-
-        .btn {
-            padding: 1rem 2rem;
-            border: none;
-            border-radius: 50px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-decoration: none;
-            display: inline-block;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .btn::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.3);
-            transform: translate(-50%, -50%);
-            transition: width 0.6s, height 0.6s;
-        }
-
-        .btn:hover::before {
-            width: 300px;
-            height: 300px;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary), var(--accent));
-            color: white;
-            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-3px) scale(1.05);
-            box-shadow: 0 15px 40px rgba(99, 102, 241, 0.4);
-        }
-
-        .btn-secondary {
-            background: transparent;
-            color: var(--light);
-            border: 2px solid var(--primary);
-        }
-
-        .btn-secondary:hover {
-            background: var(--primary);
-            transform: translateY(-3px) scale(1.05);
-        }
-
-        .scroll-indicator {
-            position: absolute;
-            bottom: 2rem;
-            left: 50%;
-            transform: translateX(-50%);
-            animation: bounce 2s infinite;
-            font-size: 2rem;
-            cursor: pointer;
-        }
-
-        @keyframes bounce {
-            0%, 100% { transform: translateX(-50%) translateY(0); }
-            50% { transform: translateX(-50%) translateY(-20px); }
-        }
-
-        /* Sections */
-        section {
-            padding: 6rem 4rem;
-            max-width: 1200px;
-            margin: 0 auto;
-            position: relative;
-            z-index: 1;
-        }
-
-        h2 {
-            font-size: 3rem;
-            font-weight: 800;
-            margin-bottom: 3rem;
-            background: linear-gradient(135deg, var(--primary), var(--accent));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            opacity: 0;
-            transform: translateY(30px);
-            transition: all 0.6s ease;
-        }
-
-        h2.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        /* About Section */
-        .about-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 3rem;
-            align-items: center;
-        }
-
-        .about-image {
-            width: 100%;
-            height: 400px;
-            background: linear-gradient(135deg, var(--primary), var(--accent));
-            border-radius: 20px;
-            position: relative;
-            overflow: hidden;
-            animation: float 6s ease-in-out infinite;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-20px) rotate(2deg); }
-        }
-
-        .about-image::before {
-            content: '{ }';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 8rem;
-            color: rgba(255, 255, 255, 0.2);
-            font-weight: 900;
-            animation: pulse 2s ease-in-out infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: translate(-50%, -50%) scale(1); }
-            50% { transform: translate(-50%, -50%) scale(1.1); }
-        }
-
-        .about-content p {
-            font-size: 1.1rem;
-            color: #94a3b8;
-            line-height: 1.8;
-            margin-bottom: 1.5rem;
-        }
-
-        .skills-tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1rem;
-            margin-top: 2rem;
-        }
-
-        .skill-tag {
-            padding: 0.5rem 1rem;
-            background: rgba(99, 102, 241, 0.1);
-            border: 1px solid var(--primary);
-            border-radius: 20px;
-            color: var(--primary);
-            font-size: 0.9rem;
-            transition: all 0.3s;
-            cursor: pointer;
-        }
-
-        .skill-tag:hover {
-            background: var(--primary);
-            color: white;
-            transform: scale(1.1) rotate(5deg);
-        }
-
-        /* Projects Section */
-        .projects-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 2rem;
-        }
-
-        .project-card {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(99, 102, 241, 0.2);
-            border-radius: 20px;
-            padding: 2rem;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-            cursor: pointer;
-        }
-
-        .project-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, var(--primary), var(--accent));
-            opacity: 0;
-            transition: opacity 0.4s;
-        }
-
-        .project-card:hover::before {
-            opacity: 0.1;
-        }
-
-        .project-card:hover {
-            transform: translateY(-10px) scale(1.02) rotate(1deg);
-            box-shadow: 0 20px 60px rgba(99, 102, 241, 0.3);
-            border-color: var(--primary);
-        }
-
-        .project-icon {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            display: inline-block;
-            transition: all 0.3s;
-        }
-
-        .project-card:hover .project-icon {
-            transform: scale(1.2) rotate(360deg);
-        }
-
-        .project-card h3 {
-            font-size: 1.5rem;
-            color: white;
-            margin-bottom: 1rem;
-            position: relative;
-            z-index: 1;
-        }
-
-        .project-card p {
-            color: #94a3b8;
-            line-height: 1.6;
-            margin-bottom: 1rem;
-            position: relative;
-            z-index: 1;
-        }
-
-        .tech-stack {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-            margin-top: 1rem;
-            position: relative;
-            z-index: 1;
-        }
-
-        .tech-badge {
-            padding: 0.3rem 0.8rem;
-            background: rgba(139, 92, 246, 0.2);
-            color: var(--secondary);
-            border-radius: 10px;
-            font-size: 0.8rem;
-            transition: all 0.3s;
-        }
-
-        .tech-badge:hover {
-            background: var(--secondary);
-            color: white;
-            transform: scale(1.1);
-        }
-
-        /* Social Section */
-        .social-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 2rem;
-        }
-
-        .social-card {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(99, 102, 241, 0.2);
-            border-radius: 20px;
-            padding: 2rem;
-            text-align: center;
-            transition: all 0.3s;
-            text-decoration: none;
-            display: block;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .social-card::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            background: radial-gradient(circle, var(--accent), transparent);
-            transform: translate(-50%, -50%);
-            transition: width 0.6s, height 0.6s;
-        }
-
-        .social-card:hover::before {
-            width: 500px;
-            height: 500px;
-        }
-
-        .social-card:hover {
-            transform: scale(1.05) rotate(-2deg);
-            border-color: var(--accent);
-            box-shadow: 0 10px 40px rgba(236, 72, 153, 0.3);
-        }
-
-        .social-icon {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            position: relative;
-            z-index: 1;
-            display: inline-block;
-            transition: all 0.3s;
-        }
-
-        .social-card:hover .social-icon {
-            transform: scale(1.2) rotate(360deg);
-        }
-
-        .social-card h3 {
-            color: white;
-            margin-bottom: 0.5rem;
-            position: relative;
-            z-index: 1;
-        }
-
-        .social-card p {
-            color: #94a3b8;
-            position: relative;
-            z-index: 1;
-        }
-
-        /* Contact Section */
-        .contact-container {
-            max-width: 600px;
-            margin: 0 auto;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(99, 102, 241, 0.2);
-            border-radius: 20px;
-            padding: 3rem;
-        }
-
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: var(--light);
-            font-weight: 500;
-        }
-
-        input, textarea {
-            width: 100%;
-            padding: 1rem;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(99, 102, 241, 0.3);
-            border-radius: 10px;
-            color: white;
-            font-family: inherit;
-            transition: all 0.3s;
-        }
-
-        input:focus, textarea:focus {
-            outline: none;
-            border-color: var(--primary);
-            background: rgba(255, 255, 255, 0.08);
-            box-shadow: 0 0 20px rgba(99, 102, 241, 0.2);
-            transform: scale(1.02);
-        }
-
-        textarea {
-            resize: vertical;
-            min-height: 150px;
-        }
-
-        /* Footer */
-        footer {
-            background: rgba(0, 0, 0, 0.5);
-            padding: 3rem 4rem;
-            text-align: center;
-            border-top: 1px solid rgba(99, 102, 241, 0.2);
-        }
-
-        .footer-social {
-            display: flex;
-            justify-content: center;
-            gap: 2rem;
-            margin-bottom: 2rem;
-        }
-
-        .footer-social a {
-            color: var(--light);
-            font-size: 1.5rem;
-            transition: all 0.3s;
-            text-decoration: none;
-            display: inline-block;
-        }
-
-        .footer-social a:hover {
-            color: var(--accent);
-            transform: translateY(-5px) scale(1.2) rotate(360deg);
-        }
-
-        /* Music Visualizer */
-        .music-visualizer {
-            position: fixed;
-            bottom: 2rem;
-            right: 2rem;
-            display: flex;
-            gap: 5px;
-            z-index: 1000;
-        }
-
-        .bar {
-            width: 5px;
-            height: 20px;
-            background: linear-gradient(to top, var(--primary), var(--accent));
-            border-radius: 5px;
-            animation: musicBar 0.5s ease-in-out infinite;
-        }
-
-        .bar:nth-child(1) { animation-delay: 0s; }
-        .bar:nth-child(2) { animation-delay: 0.1s; }
-        .bar:nth-child(3) { animation-delay: 0.2s; }
-        .bar:nth-child(4) { animation-delay: 0.3s; }
-        .bar:nth-child(5) { animation-delay: 0.4s; }
-
-        @keyframes musicBar {
-            0%, 100% { height: 20px; }
-            50% { height: 60px; }
-        }
-
-        /* Fireworks */
-        .firework {
-            position: fixed;
-            width: 5px;
-            height: 5px;
-            background: var(--accent);
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 9999;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .hero h1 { font-size: 3rem; }
-            .about-grid { grid-template-columns: 1fr; }
-            section { padding: 4rem 2rem; }
-            nav ul { gap: 1rem; }
-            body { cursor: auto; }
-            .cursor, .cursor-follower { display: none; }
-            .music-visualizer { display: none; }
-        }
-
-        /* Animations on scroll */
-        .fade-in {
-            opacity: 0;
-            transform: translateY(30px);
-            transition: all 0.6s ease;
-        }
-
-        .fade-in.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        /* Loading Screen */
-        .loading-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--dark);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 10000;
-            transition: opacity 0.5s, visibility 0.5s;
-        }
-
-        .loading-screen.hidden {
-            opacity: 0;
-            visibility: hidden;
-        }
-
-        .loader {
-            width: 60px;
-            height: 60px;
-            border: 3px solid rgba(99, 102, 241, 0.3);
-            border-top-color: var(--primary);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .loading-text {
-            margin-top: 2rem;
-            font-size: 1.5rem;
-            color: var(--primary);
-        }
-
-        /* Notification */
-        .notification {
-            position: fixed;
-            top: -100px;
-            right: 2rem;
-            background: rgba(99, 102, 241, 0.9);
-            color: white;
-            padding: 1rem 2rem;
-            border-radius: 10px;
-            z-index: 10000;
-            transition: top 0.5s;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-        }
-
-        .notification.show {
-            top: 2rem;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>oakvx — synk / Δash</title>
+  <meta name="description" content="Sviluppatore full-stack (Node.js). Progetti 2025: synk (in sviluppo) e Δash (rilasciato)." />
+  <meta name="theme-color" content="#0B0D12" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg:#0B0D12;                 /* near-black */
+      --paper:#0F1522;              /* deep slate */
+      --paper2:#101A2B;             /* slightly brighter surface */
+      --ink:#FFFCF2;                /* warm white */
+      --muted:#B6C0CF;              /* light slate */
+      --muted2:#93A1B5;
+      --line:rgba(255,252,242,.14);
+      --line2:rgba(255,252,242,.08);
+      --shadow: 0 26px 90px rgba(0,0,0,.52);
+      --shadow2: 0 12px 34px rgba(0,0,0,.42);
+      --accent:#F2C94C;             /* warm yellow */
+      --accent2:#0B0D12;
+      --ok:#15B979;
+      --warn:#D97706;
+      --radius:22px;
+      --container: 1120px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    }
+
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background:
+        radial-gradient(1000px 520px at 18% 0%, rgba(242,201,76,.16), transparent 58%),
+        radial-gradient(900px 520px at 92% 10%, rgba(255,252,242,.06), transparent 60%),
+        radial-gradient(900px 620px at 50% 120%, rgba(21,185,121,.10), transparent 60%),
+        var(--bg);
+      color:var(--ink);
+      overflow-x:hidden;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    /* subtle grain */
+    body::before{
+      content:"";
+      position:fixed; inset:0;
+      pointer-events:none;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)' opacity='.12'/%3E%3C/svg%3E");
+      mix-blend-mode:overlay;
+      opacity:.18;
+    }
+
+    a{color:inherit}
+    .container{max-width:var(--container); margin:0 auto; padding:0 22px}
+    .sr{position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); border:0;}
+
+    /* top nav */
+    .nav{
+      position:sticky; top:0; z-index:50;
+      background: rgba(11,13,18,.72);
+      backdrop-filter: blur(14px);
+      border-bottom:1px solid var(--line2);
+    }
+    .nav-inner{
+      height:68px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+    }
+    .brand{
+      display:flex; align-items:center; gap:10px;
+      text-decoration:none;
+      font-weight:900;
+      letter-spacing:-.03em;
+    }
+    .brand-dot{
+      width:12px; height:12px; border-radius:4px;
+      background: var(--accent);
+      box-shadow: 0 0 0 7px rgba(242,201,76,.18);
+    }
+    .links{
+      display:flex; gap:6px; flex-wrap:wrap; align-items:center;
+    }
+    .links a{
+      text-decoration:none;
+      font-weight:900;
+      font-size:13px;
+      padding:9px 10px;
+      border-radius:12px;
+      color: rgba(255,252,242,.78);
+      transition: background .15s ease, transform .15s ease;
+    }
+    .links a:hover{
+      background: rgba(255,252,242,.06);
+      transform: translateY(-1px);
+    }
+    .right{
+      display:flex; gap:10px; align-items:center;
+    }
+
+    .kbd{
+      font-family: var(--mono);
+      font-size:12px;
+      padding:3px 8px;
+      border-radius:10px;
+      border:1px solid var(--line);
+      background: rgba(15,21,34,.75);
+      color: rgba(255,252,242,.76);
+    }
+
+    /* buttons */
+    .btn{
+      display:inline-flex; align-items:center; justify-content:center; gap:10px;
+      padding:12px 16px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background: rgba(15,21,34,.72);
+      text-decoration:none;
+      font-weight:900;
+      letter-spacing:-.01em;
+      transition: transform .18s ease, box-shadow .18s ease, background .18s ease, border-color .18s ease;
+      cursor:pointer;
+      color: rgba(255,252,242,.92);
+    }
+    .btn:hover{transform: translateY(-2px); box-shadow: var(--shadow2); background: rgba(16,26,43,.92); border-color: rgba(242,201,76,.26);}
+    .btn.primary{
+      border-color: rgba(242,201,76,.35);
+      color: #0B0D12;
+      background: linear-gradient(180deg, rgba(242,201,76,.98), rgba(242,201,76,.72));
+    }
+    .btn.primary:hover{ background: linear-gradient(180deg, rgba(242,201,76,1), rgba(242,201,76,.78)); }
+    .btn.ghost{
+      background: transparent;
+    }
+    .btn.small{padding:10px 12px; font-size:13px;}
+
+    .pill{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:8px 12px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background: rgba(15,21,34,.72);
+      font-weight:900;
+      font-size:12px;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      color: rgba(255,252,242,.78);
+      white-space:nowrap;
+    }
+    .pill.ok{ border-color: rgba(21,185,121,.35); background: rgba(21,185,121,.12); color: rgba(163,255,216,.92); }
+    .pill.dev{ border-color: rgba(217,119,6,.35); background: rgba(217,119,6,.14); color: rgba(255,210,160,.95); }
+
+    /* selling now strip */
+    .selling{
+      margin-top:14px;
+      border:1px solid rgba(242,201,76,.22);
+      background:
+        radial-gradient(520px 180px at 18% 10%, rgba(242,201,76,.18), transparent 62%),
+        radial-gradient(520px 180px at 92% 40%, rgba(255,252,242,.06), transparent 60%),
+        rgba(16,26,43,.68);
+      border-radius: 18px;
+      padding:14px 14px 12px;
+      box-shadow: var(--shadow2);
+    }
+    .selling-top{
+      display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;
+      margin-bottom:8px;
+    }
+    .selling-badge{
+      display:inline-flex; align-items:center; gap:10px;
+      font-weight:950;
+      letter-spacing:-.02em;
+      background: rgba(242,201,76,.16);
+      border:1px solid rgba(242,201,76,.28);
+      border-radius: 999px;
+      padding:8px 12px;
+      color: rgba(255,252,242,.92);
+      text-transform:none;
+    }
+    .pulse{
+      width:10px; height:10px; border-radius:999px;
+      background: var(--accent);
+      box-shadow: 0 0 0 0 rgba(242,201,76,.35);
+      animation: pulse 1.6s ease-out infinite;
+    }
+    @keyframes pulse{
+      0%{ box-shadow: 0 0 0 0 rgba(242,201,76,.32); }
+      70%{ box-shadow: 0 0 0 12px rgba(242,201,76,0); }
+      100%{ box-shadow: 0 0 0 0 rgba(242,201,76,0); }
+    }
+    .selling p{
+      margin:0;
+      color: rgba(255,252,242,.74);
+      line-height:1.75;
+      font-size:14px;
+      max-width: 90ch;
+    }
+    .selling-actions{display:flex; gap:10px; flex-wrap:wrap; margin-top:10px}
+
+    /* hero */
+    header{
+      padding:52px 0 34px;
+      position:relative;
+      overflow:hidden;
+    }
+    header::after{
+      content:"oakvx";
+      position:absolute;
+      left:50%;
+      top:10px;
+      transform: translateX(-50%);
+      font-weight:950;
+      letter-spacing:-.06em;
+      font-size: clamp(74px, 16vw, 220px);
+      color: rgba(255,252,242,.06);
+      pointer-events:none;
+      white-space:nowrap;
+      z-index:0;
+    }
+
+    .hero{
+      position:relative;
+      z-index:1;
+      display:grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap:18px;
+      align-items:start;
+    }
+    h1{
+      margin:14px 0 12px;
+      font-size: clamp(40px, 4.6vw, 62px);
+      line-height:1.02;
+      letter-spacing:-.05em;
+    }
+    .lead{
+      margin:0;
+      color: rgba(255,252,242,.76);
+      font-size:16px;
+      line-height:1.85;
+      max-width: 74ch;
+    }
+    .hero-actions{display:flex; gap:10px; flex-wrap:wrap; margin-top:18px}
+
+    .card{
+      background: rgba(16,26,43,.62);
+      border:1px solid var(--line2);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow2);
+    }
+    .hero-card{
+      padding:16px;
+      position:relative;
+      overflow:hidden;
+    }
+    .hero-card::before{
+      content:"";
+      position:absolute; inset:-1px;
+      background:
+        radial-gradient(480px 240px at 18% 0%, rgba(242,201,76,.16), transparent 60%),
+        radial-gradient(520px 260px at 90% 20%, rgba(255,252,242,.05), transparent 62%);
+      opacity:.95;
+      pointer-events:none;
+    }
+    .hero-card > *{position:relative}
+    .kv{
+      display:flex; justify-content:space-between; align-items:baseline;
+      padding:12px 0;
+      border-bottom:1px solid var(--line2);
+    }
+    .kv:last-child{border-bottom:none}
+    .kv b{font-size:13px; letter-spacing:-.01em}
+    .kv span{color: rgba(255,252,242,.70); font-size:13px}
+
+    .meta-row{display:flex; gap:10px; flex-wrap:wrap; margin-top:12px}
+
+    /* sections */
+    section{padding:48px 0}
+    .section-head{
+      display:flex; align-items:end; justify-content:space-between; gap:14px;
+      margin-bottom:14px;
+    }
+    h2{
+      margin:0;
+      font-size: 26px;
+      letter-spacing:-.03em;
+    }
+    .hint{
+      margin:0;
+      color: rgba(255,252,242,.68);
+      font-size:14px;
+      line-height:1.6;
+      max-width: 58ch;
+    }
+
+    /* projects grid */
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap:14px;
+    }
+    .project{
+      grid-column: span 12;
+      padding:0;
+      overflow:hidden;
+      transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+      cursor:pointer;
+    }
+    .project:hover{transform: translateY(-3px); box-shadow: var(--shadow); border-color: rgba(242,201,76,.18);}
+    .project-body{
+      display:grid;
+      grid-template-columns: 1.05fr .95fr;
+      min-height: 260px;
+    }
+    .project-left{padding:16px}
+    .project-right{
+      border-left:1px solid var(--line2);
+      padding:16px;
+      background:
+        radial-gradient(520px 220px at 25% 10%, rgba(242,201,76,.12), transparent 62%),
+        radial-gradient(520px 220px at 85% 20%, rgba(255,252,242,.05), transparent 62%),
+        rgba(15,21,34,.58);
+    }
+    .project-top{display:flex; justify-content:space-between; gap:10px; align-items:flex-start}
+    .project h3{
+      margin:10px 0 8px;
+      font-size:18px;
+      letter-spacing:-.02em;
+    }
+    .project p{
+      margin:0;
+      color: rgba(255,252,242,.74);
+      line-height:1.75;
+    }
+
+    /* detailed “what you get” list */
+    .bullets{
+      margin:12px 0 0;
+      padding-left: 18px;
+      color: rgba(255,252,242,.72);
+      line-height:1.75;
+      font-size:14px;
+    }
+    .bullets li{ margin: 6px 0; }
+    .bullets b{ color: rgba(255,252,242,.92); }
+
+    .actions{display:flex; gap:10px; flex-wrap:wrap; margin-top:14px}
+
+    /* simple “device” mock */
+    .mock{
+      border:1px solid var(--line2);
+      border-radius: 20px;
+      background: rgba(15,21,34,.72);
+      box-shadow: var(--shadow2);
+      overflow:hidden;
+    }
+    .mock-top{
+      display:flex; justify-content:space-between; align-items:center;
+      padding:10px 12px;
+      border-bottom:1px solid var(--line2);
+      background: rgba(255,252,242,.04);
+    }
+    .dots{display:flex; gap:6px}
+    .dots i{width:9px; height:9px; border-radius:999px; display:block; background: rgba(255,252,242,.22)}
+    .mock-title{
+      font-family: var(--mono);
+      font-size:12px;
+      color: rgba(255,252,242,.62);
+    }
+    .mock-body{
+      padding:12px;
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+    }
+    .block{
+      border:1px solid var(--line2);
+      border-radius: 16px;
+      background: rgba(16,26,43,.52);
+      padding:12px;
+      min-height: 78px;
+    }
+    .block b{
+      display:block;
+      font-size:12px;
+      letter-spacing:.10em;
+      text-transform:uppercase;
+      color: rgba(255,252,242,.78);
+    }
+    .block span{
+      display:block;
+      margin-top:8px;
+      color: rgba(255,252,242,.70);
+      font-size:13px;
+      line-height:1.55;
+    }
+
+    /* build notes */
+    .note{grid-column: span 4; padding:16px}
+    .note h4{ margin:0 0 8px; letter-spacing:-.01em; font-size:16px; }
+    .note p{ margin:0; color: rgba(255,252,242,.74); line-height:1.75; }
+
+    /* contact */
+    .contact{grid-column: span 12; padding:16px; display:flex; justify-content:space-between; gap:14px; align-items:center; flex-wrap:wrap}
+    .contact p{ margin:10px 0 0; color: rgba(255,252,242,.74); line-height:1.75; max-width: 70ch; }
+    .social{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
+
+    footer{
+      padding:28px 0 40px;
+      border-top:1px solid var(--line2);
+      color: rgba(255,252,242,.66);
+      margin-top: 20px;
+    }
+    .footer-row{display:flex; justify-content:space-between; gap:12px; align-items:center; flex-wrap:wrap}
+
+    /* command palette */
+    .palette{
+      position:fixed; inset:0;
+      display:none;
+      align-items:center; justify-content:center;
+      background: rgba(0,0,0,.52);
+      z-index:80;
+      padding:18px;
+    }
+    .palette.open{display:flex}
+    .palette-box{
+      width:min(760px, 100%);
+      border-radius: 18px;
+      border:1px solid var(--line2);
+      background: rgba(15,21,34,.92);
+      backdrop-filter: blur(14px);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .palette-head{
+      padding:12px;
+      border-bottom:1px solid var(--line2);
+      display:flex; gap:10px; align-items:center;
+    }
+    .palette-head input{
+      width:100%;
+      border:1px solid var(--line2);
+      background: rgba(16,26,43,.88);
+      color: var(--ink);
+      border-radius: 14px;
+      padding:12px 12px;
+      font: 900 14px Inter, system-ui, sans-serif;
+      outline:none;
+    }
+    .palette-list{padding:8px}
+    .item{
+      display:flex; justify-content:space-between; gap:12px; align-items:center;
+      padding:10px 12px;
+      border-radius: 14px;
+      cursor:pointer;
+      transition: background .12s ease;
+    }
+    .item:hover{background: rgba(255,252,242,.06)}
+    .item b{display:block; font-weight:950}
+    .item small{display:block; color: rgba(255,252,242,.66); font-weight:900; margin-top:2px}
+
+    /* modal */
+    .modal{ position:fixed; inset:0; z-index:90; display:none; }
+    .modal.open{display:block}
+    .modal-backdrop{ position:absolute; inset:0; background: rgba(0,0,0,.56); }
+    .sheet{
+      position:absolute;
+      right: 16px; top: 16px; bottom: 16px;
+      width: min(740px, calc(100% - 32px));
+      border-radius: 22px;
+      border:1px solid var(--line2);
+      background: rgba(15,21,34,.92);
+      backdrop-filter: blur(14px);
+      box-shadow: var(--shadow);
+      overflow:auto;
+    }
+    .sheet-head{
+      position:sticky; top:0;
+      display:flex; justify-content:space-between; align-items:flex-start; gap:12px;
+      padding:16px;
+      border-bottom:1px solid var(--line2);
+      background: rgba(15,21,34,.92);
+      z-index:2;
+    }
+    .sheet-head h3{ margin:10px 0 0; font-weight:950; letter-spacing:-.02em; }
+    .sheet-body{ padding:16px; }
+    .panel{
+      border:1px solid var(--line2);
+      background: rgba(16,26,43,.58);
+      border-radius: 18px;
+      padding:14px;
+      margin-bottom:12px;
+    }
+    .panel h4{ margin:0 0 8px; font-weight:950; letter-spacing:-.01em; }
+    .panel p, .panel li{ color: rgba(255,252,242,.74); line-height:1.75; }
+    .panel ul{ margin:8px 0 0; padding-left:18px; }
+    .codebox{
+      font-family: var(--mono);
+      font-size: 12px;
+      border-radius: 16px;
+      padding:12px;
+      border:1px solid var(--line2);
+      background: rgba(0,0,0,.22);
+      color: rgba(255,252,242,.84);
+      overflow:auto;
+      white-space:pre;
+      line-height:1.55;
+    }
+    .stackline{display:flex; gap:8px; flex-wrap:wrap}
+    .stackline .tag{background: rgba(15,21,34,.82)}
+
+    /* tags only inside modal now */
+    .tag{
+      font-size:12px;
+      padding:7px 10px;
+      border-radius:999px;
+      border:1px solid var(--line2);
+      background: rgba(16,26,43,.62);
+      color: rgba(255,252,242,.74);
+      font-weight:900;
+    }
+
+    /* toast */
+    #toast{
+      position:fixed;
+      bottom:18px; left:50%;
+      transform:translateX(-50%);
+      padding:10px 14px;
+      border-radius:999px;
+      border:1px solid var(--line2);
+      background:rgba(15,21,34,.92);
+      backdrop-filter: blur(12px);
+      color: var(--ink);
+      font-weight:950;
+      z-index:120;
+      opacity:0;
+      transition: opacity .16s ease;
+      pointer-events:none;
+      box-shadow: var(--shadow2);
+    }
+
+    @media (max-width: 980px){
+      .links{display:none}
+      .hero{grid-template-columns:1fr}
+      .project-body{grid-template-columns:1fr}
+      .project-right{border-left:none; border-top:1px solid var(--line2)}
+      .note{grid-column: span 12}
+    }
+    @media (prefers-reduced-motion: reduce){
+      html{scroll-behavior:auto}
+      *{transition:none !important; animation:none !important}
+    }
+
+    /* SERVICES */
+.service-grid{display:grid; grid-template-columns:repeat(12,1fr); gap:14px}
+.service{grid-column:span 6; padding:16px; position:relative; overflow:hidden}
+.service::before{
+  content:"";
+  position:absolute; inset:-1px;
+  background:
+    radial-gradient(560px 240px at 18% 0%, rgba(242,201,76,.14), transparent 62%),
+    radial-gradient(520px 240px at 90% 40%, rgba(255,252,242,.05), transparent 62%);
+  opacity:.9;
+  pointer-events:none;
+}
+.service > *{position:relative}
+.service h3{margin:10px 0 8px; font-size:18px; letter-spacing:-.02em}
+.service p{margin:0; color:rgba(255,252,242,.74); line-height:1.75}
+.service-meta{display:flex; gap:8px; flex-wrap:wrap; margin-top:12px}
+.kpi{
+  border:1px solid var(--line2);
+  background: rgba(16,26,43,.55);
+  border-radius: 16px;
+  padding:12px;
+  margin-top:12px;
+}
+.kpi b{display:block; font-size:12px; letter-spacing:.10em; text-transform:uppercase; color:rgba(255,252,242,.78)}
+.kpi span{display:block; margin-top:8px; color:rgba(255,252,242,.70); font-size:13px; line-height:1.55}
+
+@media (max-width: 980px){
+  .service{grid-column:span 12}
+}
+
+  </style>
 </head>
+
 <body>
-    <div class="loading-screen">
-        <div class="loader"></div>
-        <div class="loading-text">Loading...</div>
+  <div class="nav">
+    <div class="container nav-inner">
+      <a class="brand" href="#top" aria-label="Home">
+        <span class="brand-dot" aria-hidden="true"></span>
+        oakvx
+      </a>
+
+      <nav class="links" aria-label="Sezioni">
+        <a href="#services">Servizi</a>
+        <a href="#projects">Progetti</a>
+        <a href="#focus">2025</a>
+        <a href="#notes">Build notes</a>
+        <a href="#contact">Contatti</a>
+        <a href="#" id="openPalette">Comandi <span class="kbd">Ctrl K</span></a>
+      </nav>
+
+      <div class="right">
+        <a class="btn small ghost" href="#" id="openPaletteMobile">
+          Comandi <span class="kbd">Ctrl K</span>
+        </a>
+        <a class="btn small primary" href="#projects">Vedi progetti</a>
+      </div>
     </div>
+  </div>
 
-    <div class="notification" id="notification"></div>
+  <header id="top">
+    <div class="container hero">
+      <div>
+        <div class="pill">Full-stack • Node.js • Product engineering</div>
 
+        <h1>Costruisco prodotti che automatizzano flussi operativi.</h1>
 
-    <div class="cursor"></div>
-    <div class="cursor-follower"></div>
-    <canvas id="particles"></canvas>
-    <canvas id="matrix"></canvas>
+        <p class="lead">
+          Nel 2025 sto sviluppando <b>synk</b> (segretario AI in <b>Node.js</b>) e ho rilasciato <b>Δash</b>
+          (gestionale per officine). Lavoro su sistemi concreti: <b>data model</b>, integrazioni,
+          <b>RBAC</b>, <b>audit log</b>, <b>queue</b>, idempotenza e performance.
+        </p>
 
-    <div class="music-visualizer">
-        <div class="bar"></div>
-        <div class="bar"></div>
-        <div class="bar"></div>
-        <div class="bar"></div>
-        <div class="bar"></div>
-    </div>
-
-    <nav id="navbar">
-        <ul>
-            <li><a href="#home">Home</a></li>
-            <li><a href="#about">About</a></li>
-            <li><a href="#projects">Projects</a></li>
-            <li><a href="#social">Social</a></li>
-            <li><a href="#contact">Contact</a></li>
-        </ul>
-    </nav>
-
-    <section id="home" class="hero">
-        <h1 data-text="oakvx">oakvx</h1>
-        <p class="subtitle">Creative developer & designer building cool stuff on the internet</p>
-        <div class="typing-text">
-            <span id="typed-text"></span><span class="cursor-blink">|</span>
-        </div>
-        <div class="cta-buttons">
-            <a href="#projects" class="btn btn-primary">See My Work</a>
-            <a href="#contact" class="btn btn-secondary">Get in Touch</a>
-        </div>
-        <div class="scroll-indicator" onclick="document.getElementById('about').scrollIntoView({behavior: 'smooth'})">
-            ↓
-        </div>
-    </section>
-
-    <section id="about">
-        <h2>About Me</h2>
-        <div class="about-grid fade-in">
-            <div class="about-image"></div>
-            <div class="about-content">
-                <p>Hey! I'm a developer from Bologna, Italy 🇮🇹 with a passion for creating interactive web experiences.</p>
-                <p>I love experimenting with new technologies, building side projects, and learning something new every day. Currently diving deep into modern web frameworks and creative coding.</p>
-                <p>When I'm not coding, you'll find me exploring new design trends, making content, or just vibing with good music.</p>
-                <div class="skills-tags">
-                    <span class="skill-tag">JavaScript</span>
-                    <span class="skill-tag">React</span>
-                    <span class="skill-tag">HTML/CSS</span>
-                    <span class="skill-tag">Node.js</span>
-                    <span class="skill-tag">Three.js</span>
-                    <span class="skill-tag">UI/UX Design</span>
-                    <span class="skill-tag">Animation</span>
-                    <span class="skill-tag">WebGL</span>
-                </div>
+        <div class="selling" aria-label="Selling now">
+          <div class="selling-top">
+            <div class="selling-badge">
+              <span class="pulse" aria-hidden="true"></span>
+              <span>Selling now</span>
+              <span style="opacity:.8;font-weight:900">•</span>
+              <span style="opacity:.9;font-weight:900">audit / MVP / automazioni</span>
             </div>
+            <span class="pill" style="text-transform:none; letter-spacing:-.01em">Disponibilità: slot limitati</span>
+          </div>
+          <p>
+            Se hai un prodotto che deve diventare <b>robusto in produzione</b> (permessi, logging, stati, retry, integrazioni),
+            entro in modo chirurgico: <b>assessment</b> → <b>roadmap</b> → <b>implementazione</b> con standard “audit-first”.
+          </p>
+          <div class="selling-actions">
+            <a class="btn primary" href="#contact">Contattami</a>
+            <a class="btn" href="#projects">Vedi cosa costruisco</a>
+          </div>
         </div>
-    </section>
 
+        <div class="hero-actions">
+          <a class="btn primary" href="#projects">Progetti 2025</a>
+          <a class="btn" href="mailto:oakvx7@gmail.com?subject=Contatto%20da%20portfolio">Email</a>
+          <a class="btn" href="https://github.com/oakvx" target="_blank" rel="noreferrer">GitHub</a>
+          <a class="btn" href="https://instagram.com/oakvx" target="_blank" rel="noreferrer">Instagram</a>
+          <a class="btn" href="https://www.tiktok.com/@oakvx.sh" target="_blank" rel="noreferrer">TikTok</a>
+        </div>
+      </div>
+
+      <aside class="card hero-card" aria-label="Sintesi">
+        <div class="kv"><b>Anno</b><span>2025</span></div>
+        <div class="kv"><b>synk</b><span>in sviluppo</span></div>
+        <div class="kv"><b>Δash</b><span>rilasciato</span></div>
+        <div class="kv"><b>Focus</b><span>automazione + data layer</span></div>
+
+        <div class="meta-row" aria-label="Principi">
+          <span class="pill dev">synk: dev</span>
+          <span class="pill ok">Δash: ready</span>
+          <span class="pill">audit-first</span>
+        </div>
+
+        <div style="height:12px"></div>
+
+        <div class="mock" aria-hidden="true">
+          <div class="mock-top">
+            <div class="dots"><i></i><i></i><i></i></div>
+            <div class="mock-title">systems / checklist</div>
+          </div>
+          <div class="mock-body">
+            <div class="block"><b>RBAC</b><span>policy layer e permessi stabili</span></div>
+            <div class="block"><b>audit log</b><span>tracciamento eventi e azioni</span></div>
+            <div class="block"><b>queue</b><span>retry/backoff e side effects</span></div>
+            <div class="block"><b>DX</b><span>migrations, config, ambienti</span></div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </header>
+
+  <main class="container">
     <section id="projects">
-        <h2>Projects</h2>
-        <div class="projects-grid">
-            <div class="project-card fade-in">
-                <div class="project-icon">🎨</div>
-                <h3>Portfolio Website</h3>
-                <p>My personal space on the web with interactive animations and modern design. Built from scratch with vanilla JS.</p>
-                <div class="tech-stack">
-                    <span class="tech-badge">HTML</span>
-                    <span class="tech-badge">CSS</span>
-                    <span class="tech-badge">JavaScript</span>
+      <div class="section-head">
+        <h2>Progetti</h2>
+        <p class="hint">Apri una card per vedere problema, soluzione, architettura e roadmap.</p>
+      </div>
+
+      <div class="grid">
+        <!-- synk -->
+        <article class="card project" data-open="synk" aria-label="Apri synk">
+          <div class="project-body">
+            <div class="project-left">
+              <div class="project-top">
+                <div>
+                  <span class="pill dev">in sviluppo</span>
+                  <h3>synk — segretario AI (Node.js)</h3>
                 </div>
+                <span class="pill">AI automation</span>
+              </div>
+
+              <p>
+                <b>synk</b> prende richieste sparse (email, DM, form, webhook), le normalizza e le trasforma in
+                <b>azioni verificabili</b>: crea task, aggiorna record, pianifica eventi e produce output strutturati.
+                Il punto non è “fare la demo”, ma garantire <b>affidabilità</b> quando entrano volumi, errori e dipendenze esterne.
+              </p>
+
+              <ul class="bullets" aria-label="Cosa ottieni con synk">
+                <li><b>Ingest multi-sorgente</b> con adapter e normalizzazione (stesso modello dati indipendente dal canale).</li>
+                <li><b>Intent routing</b> + policy layer: cosa può fare e cosa no, con scope chiaro del contesto.</li>
+                <li><b>Tool execution</b> su job queue: retry/backoff, idempotenza sui side effects e gestione errori ripetibile.</li>
+                <li><b>Audit trail</b> append-only: ogni azione ha causa, payload, esito e timestamp (debug e compliance).</li>
+              </ul>
+
+              <div class="actions">
+                <a class="btn primary" href="#" data-detail="synk">Dettagli</a>
+                <a class="btn" href="#contact">Richiedi contesto</a>
+              </div>
             </div>
-            <div class="project-card fade-in">
-                <div class="project-icon">🎮</div>
-                <h3>Interactive Games</h3>
-                <p>Collection of web-based games and interactive experiences. Experimenting with canvas and game physics.</p>
-                <div class="tech-stack">
-                    <span class="tech-badge">Canvas</span>
-                    <span class="tech-badge">JavaScript</span>
-                    <span class="tech-badge">Animation</span>
+
+            <div class="project-right">
+              <div class="mock" aria-hidden="true">
+                <div class="mock-top">
+                  <div class="dots"><i></i><i></i><i></i></div>
+                  <div class="mock-title">synk / pipeline</div>
                 </div>
-            </div>
-            <div class="project-card fade-in">
-                <div class="project-icon">🚀</div>
-                <h3>Landing Pages</h3>
-                <p>Modern, responsive landing pages with smooth animations and eye-catching designs for various projects.</p>
-                <div class="tech-stack">
-                    <span class="tech-badge">React</span>
-                    <span class="tech-badge">CSS</span>
-                    <span class="tech-badge">Animation</span>
+                <div class="mock-body">
+                  <div class="block"><b>ingest</b><span>adapter → normalize</span></div>
+                  <div class="block"><b>route</b><span>intent → policy</span></div>
+                  <div class="block"><b>execute</b><span>queue → retry</span></div>
+                  <div class="block"><b>log</b><span>audit → export</span></div>
                 </div>
+              </div>
             </div>
-            <div class="project-card fade-in">
-                <div class="project-icon">🎵</div>
-                <h3>Music Player</h3>
-                <p>Custom music player with visualizations and a clean interface. Learning audio API and data visualization.</p>
-                <div class="tech-stack">
-                    <span class="tech-badge">Web Audio API</span>
-                    <span class="tech-badge">Canvas</span>
-                    <span class="tech-badge">JS</span>
+          </div>
+        </article>
+
+        <!-- Δash -->
+        <article class="card project" data-open="dash" aria-label="Apri Δash">
+          <div class="project-body">
+            <div class="project-left">
+              <div class="project-top">
+                <div>
+                  <span class="pill ok">rilasciato</span>
+                  <h3>Δash — gestionale per officine</h3>
                 </div>
+                <span class="pill">Data product</span>
+              </div>
+
+              <p>
+                <b>Δash</b> è un gestionale “data-first”: centralizza clienti, veicoli, interventi e ricambi con
+                <b>stati espliciti</b> e <b>storico tracciabile</b>. L’obiettivo è ridurre ambiguità operative e rendere
+                i dati consultabili velocemente, anche dopo mesi.
+              </p>
+
+              <ul class="bullets" aria-label="Cosa ottieni con Δash">
+                <li><b>Workflow interventi</b> con stati (pending/running/done/failed), tempi e note operative.</li>
+                <li><b>Magazzino ricambi</b> collegato agli interventi: consumi, disponibilità e storico movimentazioni.</li>
+                <li><b>RBAC</b> per ruoli e permessi: accessi coerenti e riduzione di errori “umani” sulla UI.</li>
+                <li><b>Audit log</b> sulle modifiche: chi ha cambiato cosa, quando e perché (tracciabilità reale).</li>
+              </ul>
+
+              <div class="actions">
+                <a class="btn primary" href="#" data-detail="dash">Dettagli</a>
+                <a class="btn" href="#contact">Contatti</a>
+              </div>
             </div>
-            <div class="project-card fade-in">
-                <div class="project-icon">📱</div>
-                <h3>UI Components</h3>
-                <p>Reusable component library with modern design patterns and smooth interactions.</p>
-                <div class="tech-stack">
-                    <span class="tech-badge">React</span>
-                    <span class="tech-badge">CSS</span>
-                    <span class="tech-badge">Storybook</span>
+
+            <div class="project-right">
+              <div class="mock" aria-hidden="true">
+                <div class="mock-top">
+                  <div class="dots"><i></i><i></i><i></i></div>
+                  <div class="mock-title">Δash / modules</div>
                 </div>
-            </div>
-            <div class="project-card fade-in">
-                <div class="project-icon">✨</div>
-                <h3>Creative Experiments</h3>
-                <p>Random creative coding projects and visual experiments. Always trying new things!</p>
-                <div class="tech-stack">
-                    <span class="tech-badge">Three.js</span>
-                    <span class="tech-badge">WebGL</span>
-                    <span class="tech-badge">Shader</span>
+                <div class="mock-body">
+                  <div class="block"><b>clienti</b><span>anagrafiche + storico</span></div>
+                  <div class="block"><b>veicoli</b><span>targhe + scadenze</span></div>
+                  <div class="block"><b>interventi</b><span>stati + tempi</span></div>
+                  <div class="block"><b>ricambi</b><span>magazzino + consumi</span></div>
                 </div>
+              </div>
             </div>
+          </div>
+        </article>
+      </div>
+    </section>
+<section id="services">
+  <div class="section-head">
+    <h2>Servizi</h2>
+    <p class="hint">Due offerte “prodotto”: outcome chiari, deliverable concreti, niente consulenza generica.</p>
+  </div>
+
+  <div class="service-grid">
+    <!-- SERVICE 1 -->
+    <article class="card service" aria-label="Servizio: Hardening & Audit-first backend">
+      <div class="project-top">
+        <div>
+          <span class="pill ok">servizio • produzione</span>
+          <h3>Hardening & Audit-first backend</h3>
         </div>
+        <span class="pill">stabilità</span>
+      </div>
+
+      <p>
+        Per sistemi già attivi (o quasi) che devono diventare <b>debuggabili</b> e <b>affidabili</b>:
+        <b>RBAC/ACL</b> pulito, <b>audit log</b> serio, stati espliciti, idempotenza e job asincroni con retry/backoff.
+        Obiettivo: ridurre incidenti, regressioni e “magie” non tracciate.
+      </p>
+
+      <div class="kpi">
+        <b>Deliverable</b>
+        <span>
+          Threat model leggero + gap analysis • policy layer (RBAC/ACL) • audit trail append-only •
+          job queue con idempotency key • error taxonomy • logging/metrics/tracing (es. OpenTelemetry) •
+          checklist release & rollback
+        </span>
+      </div>
+
+      <div class="service-meta">
+        <span class="tag">Node.js</span>
+        <span class="tag">PostgreSQL</span>
+        <span class="tag">RBAC/ACL</span>
+        <span class="tag">Audit log</span>
+        <span class="tag">Queue/Jobs</span>
+        <span class="tag">Observability</span>
+      </div>
+
+      <div class="actions">
+        <a class="btn primary" href="mailto:oakvx7@gmail.com?subject=Richiesta%20Hardening%20%2F%20Audit-first&body=Ciao%20oakvx%2C%0A%0AObiettivo%3A%20...%0AStack%3A%20...%0ADB%3A%20...%0AVolumi%2FSLA%3A%20...%0ACriticità%3A%20...%0ADeadline%3A%20...%0A%0ALink%20repo%2Fambiente%20(se%20possibile)%3A%20...%0A">
+          Richiedi preventivo
+        </a>
+        <a class="btn" href="#contact">Cosa includere nel messaggio</a>
+      </div>
+    </article>
+
+    <!-- SERVICE 2 -->
+    <article class="card service" aria-label="Servizio: AI automation & operator assistant">
+      <div class="project-top">
+        <div>
+          <span class="pill dev">servizio • automazione</span>
+          <h3>AI automation (assistente operativo)</h3>
+        </div>
+        <span class="pill">AI tooling</span>
+      </div>
+
+      <p>
+        Costruisco automazioni “synk-style”: pipeline <b>ingest → normalize → intent routing → tool execution</b>,
+        con policy layer che governa i side effects. L’LLM non “decide in libertà”: propone, ma l’esecuzione passa
+        da validazioni, tool whitelist e audit.
+      </p>
+
+      <div class="kpi">
+        <b>Deliverable</b>
+        <span>
+          Adapter (email/DM/form/webhook) • router intent + tool selection (function calling) •
+          job queue con retry/backoff • outbox/webhook • audit trail (azione → esito) •
+          guardrail (policy + schema validation) • MVP end-to-end deployabile
+        </span>
+      </div>
+
+      <div class="service-meta">
+        <span class="tag">Node.js</span>
+        <span class="tag">LLM tools</span>
+        <span class="tag">Schema validation</span>
+        <span class="tag">Queue/Jobs</span>
+        <span class="tag">Webhooks</span>
+        <span class="tag">Audit-first</span>
+      </div>
+
+      <div class="actions">
+        <a class="btn primary" href="mailto:oakvx7@gmail.com?subject=Richiesta%20AI%20automation%20%2F%20Assistente%20operativo&body=Ciao%20oakvx%2C%0A%0AUse%20case%3A%20...%0AInput%20canali%3A%20(email%2FDM%2Fform%2F...)%0ATool%2Fintegrazioni%3A%20(calendar%2Fcrm%2Fdb%2F...)%0AVincoli%2Frischi%3A%20...%0ADeadline%3A%20...%0A%0AOutput%20atteso%3A%20(task%2Freport%2Fazioni%2Fnotifiche)%0A">
+          Parliamone
+        </a>
+        <a class="btn" href="#projects">Vedi progetti correlati</a>
+      </div>
+    </article>
+  </div>
+</section>
+
+    <section id="focus">
+      <div class="section-head">
+        <h2>2025</h2>
+        <p class="hint">Due prodotti con stati diversi: build (synk) e ship (Δash). Stesso standard: policy, log, stati e deploy ripetibile.</p>
+      </div>
+
+      <div class="grid">
+        <div class="card" style="grid-column: span 12; padding:16px">
+          <div class="stackline" style="margin-top:0">
+            <span class="tag"><b>Q1–Q2</b> Δash: schema → RBAC → audit log → UI</span>
+            <span class="tag"><b>Q3–Q4</b> synk: ingest → intent → queue → policy</span>
+            <span class="tag">principio: osservabilità prima degli effetti</span>
+          </div>
+          <div style="height:10px"></div>
+          <p class="hint" style="max-width:none">
+            Preferisco costruire sistemi debuggabili: stati chiari (pending/running/done/failed), audit trail append-only, idempotenza sui side effects e retry/backoff su job asincroni.
+          </p>
+        </div>
+      </div>
     </section>
 
-    <section id="social">
-        <h2>Connect With Me</h2>
-        <div class="social-grid">
-            <a href="https://instagram.com/oakvx" target="_blank" class="social-card fade-in">
-                <div class="social-icon">📸</div>
-                <h3>Instagram</h3>
-                <p>@oakvx</p>
-            </a>
-            <a href="https://tiktok.com/@oakvx.sh" target="_blank" class="social-card fade-in">
-                <div class="social-icon">🎵</div>
-                <h3>TikTok</h3>
-                <p>@oakvx.sh</p>
-            </a>
-            <a href="https://github.com/oakvx" target="_blank" class="social-card fade-in">
-                <div class="social-icon">💻</div>
-                <h3>GitHub</h3>
-                <p>@oakvx</p>
-            </a>
-            <a href="mailto:hello@oakvx.dev" class="social-card fade-in">
-                <div class="social-icon">✉️</div>
-                <h3>Email</h3>
-                <p>hello@oakvx.dev</p>
-            </a>
+    <section id="notes">
+      <div class="section-head">
+        <h2>Build notes</h2>
+        <p class="hint">Scelte ricorrenti che aumentano qualità senza rendere tutto fragile.</p>
+      </div>
+
+      <div class="grid">
+        <div class="card note">
+          <h4>Architettura a moduli</h4>
+          <p>Separazione netta: <b>API</b> → <b>services</b> → <b>data access</b>. Riduce coupling e rende gestibili feature e permessi.</p>
         </div>
+        <div class="card note">
+          <h4>Policy layer (RBAC/ACL)</h4>
+          <p>Permessi come parte del design: ruoli, scope, regole e audit. Implementarli tardi costa integrazioni e refactor.</p>
+        </div>
+        <div class="card note">
+          <h4>Stati + audit trail</h4>
+          <p>Un sistema serio espone stati e log: eventi, errori, retry, cause. Debug ripetibile, non “a intuito”.</p>
+        </div>
+      </div>
     </section>
 
     <section id="contact">
-        <h2>Let's Talk</h2>
-        <div class="contact-container fade-in">
-            <form id="contact-form">
-                <div class="form-group">
-                    <label for="name">Name</label>
-                    <input type="text" id="name" required>
-                </div>
-                <div class="form-group">
-                    <label for="email">Email</label>
-                    <input type="email" id="email" required>
-                </div>
-                <div class="form-group">
-                    <label for="message">Message</label>
-                    <textarea id="message" required></textarea>
-                </div>
-                <button type="submit" class="btn btn-primary" style="width: 100%;">Send Message</button>
-            </form>
+      <div class="section-head">
+        <h2>Contatti</h2>
+        <p class="hint">Messaggi utili: obiettivo, vincoli, stack attuale, deadline, e cosa ti aspetti (fix, feature, audit, MVP).</p>
+      </div>
+
+      <div class="grid">
+        <div class="card contact">
+          <div>
+            <div class="pill" style="text-transform:none; letter-spacing:-.01em">oakvx7@gmail.com</div>
+            <p>Se vuoi parlare di synk o Δash, includi contesto tecnico (integrazioni, auth, database, volumi, SLA) e priorità.</p>
+          </div>
+          <div class="social">
+            <a class="btn primary" href="mailto:oakvx7@gmail.com?subject=Contatto%20da%20portfolio">Invia email</a>
+            <button class="btn" id="copyEmail" type="button">Copia email</button>
+            <a class="btn" href="https://github.com/oakvx" target="_blank" rel="noreferrer">GitHub</a>
+            <a class="btn" href="https://instagram.com/oakvx" target="_blank" rel="noreferrer">Instagram</a>
+            <a class="btn" href="https://www.tiktok.com/@oakvx.sh" target="_blank" rel="noreferrer">TikTok</a>
+          </div>
         </div>
+      </div>
+
+      <footer>
+        <div class="footer-row">
+          <div>© 2026 oakvx — progetti 2025: synk / Δash</div>
+          <div style="display:flex; gap:10px; flex-wrap:wrap">
+            <a class="btn small ghost" href="#" id="openPalette2">Comandi <span class="kbd">Ctrl K</span></a>
+          </div>
+        </div>
+      </footer>
     </section>
+  </main>
 
-    <footer>
-        <div class="footer-social">
-            <a href="https://instagram.com/oakvx" target="_blank">📸</a>
-            <a href="https://tiktok.com/@oakvx.sh" target="_blank">🎵</a>
-            <a href="https://github.com/oakvx" target="_blank">💻</a>
+  <!-- Command Palette -->
+  <div class="palette" id="palette" aria-hidden="true">
+    <div class="palette-box" role="dialog" aria-modal="true" aria-label="Command palette">
+      <div class="palette-head">
+        <input id="paletteInput" placeholder="Cerca: progetti, contatti, copia email…" autocomplete="off" />
+        <span class="kbd">Esc</span>
+      </div>
+      <div class="palette-list" id="paletteList"></div>
+    </div>
+  </div>
+
+  <!-- Project Drawer -->
+  <div class="modal" id="projectModal" aria-hidden="true">
+    <div class="modal-backdrop" data-close="1"></div>
+    <div class="sheet" role="dialog" aria-modal="true" aria-label="Dettaglio progetto">
+      <div class="sheet-head">
+        <div>
+          <div class="pill" id="modalPill"></div>
+          <h3 id="modalTitle"></h3>
         </div>
-        <p>© 2026 oakvx - Made with passion and lots of coffee ☕</p>
-    </footer>
+        <button class="btn small" id="closeModal" type="button">Chiudi</button>
+      </div>
+      <div class="sheet-body" id="modalBody"></div>
+    </div>
+  </div>
 
-    <script>
-        // ============= LOADING SCREEN =============
-        window.addEventListener('load', () => {
-            setTimeout(() => {
-                document.querySelector('.loading-screen').classList.add('hidden');
-                showNotification('Welcome to my portfolio! 🚀');
-            }, 1500);
+  <div id="toast" aria-live="polite"></div>
+
+  <script>
+    (function(){
+      const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+      const toastEl = document.getElementById("toast");
+      let toastT = null;
+      function toast(msg){
+        clearTimeout(toastT);
+        toastEl.textContent = msg;
+        toastEl.style.opacity = "1";
+        toastT = setTimeout(() => toastEl.style.opacity = "0", 1400);
+      }
+
+      // Copy email
+      document.getElementById("copyEmail")?.addEventListener("click", async () => {
+        try{
+          await navigator.clipboard.writeText("oakvx7@gmail.com");
+          toast("Email copiata");
+        }catch{
+          toast("Clipboard non disponibile");
+        }
+      });
+
+      // Command palette
+      const palette = document.getElementById("palette");
+      const input = document.getElementById("paletteInput");
+      const list = document.getElementById("paletteList");
+
+      function scrollToSel(sel){
+        const el = document.querySelector(sel);
+        if (el) el.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth" });
+      }
+
+      // Project drawer data (solo info dichiarate)
+      const PROJECTS = {
+        synk: {
+          pill: { cls: "pill dev", text: "in sviluppo • 2025" },
+          title: "synk — segretario AI (Node.js)",
+          problem: "Richieste e follow-up distribuiti su canali diversi: informazioni non normalizzate, azioni manuali e assenza di tracciamento affidabile degli effetti.",
+          solution: "Pipeline: ingest → normalizzazione → intent routing → tool execution su queue → output strutturato + audit trail. Focus su idempotenza, retry/backoff e policy layer per governare i side effects.",
+          details: [
+            "Pensato per trasformare una inbox caotica in una pipeline: ogni input diventa un “evento” con stato e contesto.",
+            "Routing controllato: l’LLM propone, ma la policy decide; le azioni passano da tool whitelistati e validazioni.",
+            "Esecuzione asincrona: job queue con retry/backoff, timeouts, dedup/idempotency key e outbox pattern per notifiche.",
+            "Osservabilità: audit log append-only (who/what/when/why), esportabile per analisi e debugging ripetibile."
+          ],
+          features: [
+            "Adapter input (email/DM/webform) con normalizzazione",
+            "Intent classification + tool routing (function calling)",
+            "Job queue con retry/backoff e gestione errori",
+            "Scope del contesto (memory controllata) e cache",
+            "Audit log di azioni/risultati con export"
+          ],
+          roadmap: [
+            "MVP: inbox unificata + creazione/assegnazione task",
+            "Integrazione calendario + reminder",
+            "Policy layer (azioni consentite) e sandbox di esecuzione",
+            "Observability: eventi, tracing e monitor errori"
+          ],
+          arch: `client -> api (node)
+  -> router (intent/tools)
+  -> queue (jobs: retry/backoff)
+  -> providers (calendar, mail, crm)
+  -> db (events, logs, sessions)
+  -> notifications (outbox/webhook)`,
+          stack: ["Node.js", "LLM tools", "Queue/Jobs", "Webhooks", "Audit log"]
+        },
+        dash: {
+          pill: { cls: "pill ok", text: "rilasciato • 2025" },
+          title: "Δash — gestionale per officine",
+          problem: "Dati operativi frammentati (clienti, veicoli, interventi, ricambi), con storico poco coerente e permessi non formalizzati.",
+          solution: "Data model relazionale + UI rapida: anagrafiche, interventi, ricambi, scadenze, report. RBAC e audit log per rendere le modifiche tracciabili e verificabili.",
+          details: [
+            "Struttura “data-first”: entità solide (clienti/veicoli/interventi/ricambi) e relazioni pensate per storico e report.",
+            "UI veloce perché i flussi sono frequenti: ricerca rapida, filtri, stati espliciti e azioni ridotte al minimo.",
+            "RBAC integrato: ruoli e permessi non come afterthought, ma come parte del modello e della UX.",
+            "Audit log sulle modifiche: ogni change è spiegabile e verificabile (utile per operatività e controllo interno)."
+          ],
+          features: [
+            "Anagrafiche clienti/veicoli con storico",
+            "Interventi con stati e tracciamento tempi",
+            "Ricambi/magazzino con consumo per intervento",
+            "RBAC (ruoli/permessi) + audit log modifiche",
+            "Ricerca e filtri rapidi + export"
+          ],
+          roadmap: [
+            "Report avanzati (view/materialized view)",
+            "Template stampa e documenti",
+            "Import CSV con validazione",
+            "Notifiche scadenze (revisioni/tagliandi)"
+          ],
+          arch: `ui -> api
+  -> auth (rbac)
+  -> services (customers, vehicles, jobs, parts)
+  -> db (postgres + migrations)
+  -> audit (append-only log)
+  -> reports (views/export)`,
+          stack: ["PostgreSQL", "RBAC", "Audit log", "Search", "Fast UI"]
+        }
+      };
+
+      // Modal logic
+      const modal = document.getElementById("projectModal");
+      const closeBtn = document.getElementById("closeModal");
+      const modalTitle = document.getElementById("modalTitle");
+      const modalPill = document.getElementById("modalPill");
+      const modalBody = document.getElementById("modalBody");
+
+      function openProject(key){
+        const p = PROJECTS[key];
+        if(!p) return;
+
+        modalTitle.textContent = p.title;
+        modalPill.className = p.pill.cls;
+        modalPill.textContent = p.pill.text;
+
+        modalBody.innerHTML = `
+          <div class="panel">
+            <h4>Problema</h4>
+            <p>${p.problem}</p>
+          </div>
+
+          <div class="panel">
+            <h4>Soluzione</h4>
+            <p>${p.solution}</p>
+          </div>
+
+          <div class="panel">
+            <h4>Descrizione dettagliata</h4>
+            <ul>${(p.details || []).map(x => `<li>${x}</li>`).join("")}</ul>
+          </div>
+
+          <div class="panel">
+            <h4>Feature</h4>
+            <ul>${p.features.map(x => `<li>${x}</li>`).join("")}</ul>
+          </div>
+
+          <div class="panel">
+            <h4>Architettura</h4>
+            <div class="codebox">${p.arch}</div>
+          </div>
+
+          <div class="panel">
+            <h4>Roadmap</h4>
+            <ul>${p.roadmap.map(x => `<li>${x}</li>`).join("")}</ul>
+          </div>
+
+          <div class="panel">
+            <h4>Stack</h4>
+            <div class="stackline">
+              ${p.stack.map(s => `<span class="tag">${s}</span>`).join("")}
+            </div>
+          </div>
+        `;
+
+        modal.classList.add("open");
+        modal.setAttribute("aria-hidden","false");
+      }
+      function closeProject(){
+        modal.classList.remove("open");
+        modal.setAttribute("aria-hidden","true");
+      }
+
+      document.querySelectorAll("[data-detail]")?.forEach(btn => {
+        btn.addEventListener("click", (e) => {
+          e.preventDefault();
+          openProject(btn.getAttribute("data-detail"));
+        });
+      });
+      document.querySelectorAll(".project")?.forEach(card => {
+        card.addEventListener("click", (e) => {
+          const a = e.target.closest("a,button");
+          if (a) return;
+          const key = card.getAttribute("data-open");
+          openProject(key);
+        });
+      });
+
+      closeBtn?.addEventListener("click", closeProject);
+      modal?.addEventListener("click", (e) => { if(e.target?.dataset?.close) closeProject(); });
+      window.addEventListener("keydown", (e) => { if(e.key === "Escape" && modal.classList.contains("open")) closeProject(); });
+
+      // Palette actions
+      const actions = [
+        { title: "Vai a Progetti", hint: "#projects", run: () => scrollToSel("#projects") },
+        { title: "Vai a 2025", hint: "#focus", run: () => scrollToSel("#focus") },
+        { title: "Vai a Build notes", hint: "#notes", run: () => scrollToSel("#notes") },
+        { title: "Vai a Contatti", hint: "#contact", run: () => scrollToSel("#contact") },
+        { title: "Apri synk (dettagli)", hint: "in sviluppo", run: () => openProject("synk") },
+        { title: "Apri Δash (dettagli)", hint: "rilasciato", run: () => openProject("dash") },
+        { title: "Copia email", hint: "oakvx7@gmail.com", run: async () => {
+          try{ await navigator.clipboard.writeText("oakvx7@gmail.com"); toast("Email copiata"); }
+          catch{ toast("Clipboard non disponibile"); }
+        }},
+        { title: "Apri GitHub", hint: "github.com/oakvx", run: () => window.open("https://github.com/oakvx", "_blank") },
+        { title: "Apri Instagram", hint: "instagram.com/oakvx", run: () => window.open("https://instagram.com/oakvx", "_blank") },
+        { title: "Apri TikTok", hint: "tiktok.com/@oakvx.sh", run: () => window.open("https://www.tiktok.com/@oakvx.sh", "_blank") },
+      ];
+
+      function renderActions(filter=""){
+        const f = filter.trim().toLowerCase();
+        const filtered = actions.filter(a =>
+          a.title.toLowerCase().includes(f) || a.hint.toLowerCase().includes(f)
+        );
+
+        list.innerHTML = filtered.map((a, idx) => `
+          <div class="item" data-idx="${idx}">
+            <div><b>${a.title}</b><small>${a.hint}</small></div>
+            <span class="kbd">↵</span>
+          </div>
+        `).join("");
+
+        list.querySelectorAll(".item").forEach(el => {
+          el.addEventListener("click", () => {
+            const action = filtered[Number(el.dataset.idx)];
+            closePalette();
+            action.run();
+          });
         });
 
-        // ============= NOTIFICATION SYSTEM =============
-        function showNotification(message) {
-            const notification = document.getElementById('notification');
-            notification.textContent = message;
-            notification.classList.add('show');
-            setTimeout(() => {
-                notification.classList.remove('show');
-            }, 3000);
-        }
-
-
-        // ============= CUSTOM CURSOR =============
-        const cursor = document.querySelector('.cursor');
-        const cursorFollower = document.querySelector('.cursor-follower');
-        let mouseX = 0, mouseY = 0;
-        let followerX = 0, followerY = 0;
-
-        document.addEventListener('mousemove', (e) => {
-            mouseX = e.clientX;
-            mouseY = e.clientY;
-            
-            cursor.style.left = mouseX + 'px';
-            cursor.style.top = mouseY + 'px';
-            
-            // Cursor trail
-            if (Math.random() > 0.9) {
-                createTrail(mouseX, mouseY);
-            }
-        });
-
-        function animateFollower() {
-            followerX += (mouseX - followerX) * 0.1;
-            followerY += (mouseY - followerY) * 0.1;
-            
-            cursorFollower.style.left = followerX + 'px';
-            cursorFollower.style.top = followerY + 'px';
-            
-            requestAnimationFrame(animateFollower);
-        }
-        animateFollower();
-
-        function createTrail(x, y) {
-            const trail = document.createElement('div');
-            trail.className = 'cursor-trail';
-            trail.style.left = x + 'px';
-            trail.style.top = y + 'px';
-            document.body.appendChild(trail);
-            setTimeout(() => trail.remove(), 500);
-        }
-
-        document.querySelectorAll('a, button, .project-card, .skill-tag').forEach(el => {
-            el.addEventListener('mouseenter', () => {
-                cursor.style.transform = 'translate(-50%, -50%) scale(2)';
-                cursorFollower.style.transform = 'translate(-50%, -50%) scale(2)';
-            });
-            el.addEventListener('mouseleave', () => {
-                cursor.style.transform = 'translate(-50%, -50%) scale(1)';
-                cursorFollower.style.transform = 'translate(-50%, -50%) scale(1)';
-            });
-        });
-
-        // ============= PARTICLES ANIMATION =============
-        const canvas = document.getElementById('particles');
-        const ctx = canvas.getContext('2d');
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-
-        const particles = [];
-        const particleCount = 150;
-
-        for (let i = 0; i < particleCount; i++) {
-            particles.push({
-                x: Math.random() * canvas.width,
-                y: Math.random() * canvas.height,
-                vx: (Math.random() - 0.5) * 1,
-                vy: (Math.random() - 0.5) * 1,
-                radius: Math.random() * 2 + 1
-            });
-        }
-
-        function animateParticles() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            particles.forEach((p, i) => {
-                p.x += p.vx;
-                p.y += p.vy;
-                
-                if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
-                if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
-                
-                // Draw particle
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(99, 102, 241, ${0.5 + Math.random() * 0.5})`;
-                ctx.fill();
-                
-                // Connect nearby particles
-                particles.forEach((p2, j) => {
-                    if (i !== j) {
-                        const dx = p.x - p2.x;
-                        const dy = p.y - p2.y;
-                        const distance = Math.sqrt(dx * dx + dy * dy);
-                        
-                        if (distance < 100) {
-                            ctx.beginPath();
-                            ctx.strokeStyle = `rgba(99, 102, 241, ${0.2 * (1 - distance / 100)})`;
-                            ctx.lineWidth = 1;
-                            ctx.moveTo(p.x, p.y);
-                            ctx.lineTo(p2.x, p2.y);
-                            ctx.stroke();
-                        }
-                    }
-                });
-            });
-            
-            requestAnimationFrame(animateParticles);
-        }
-        animateParticles();
-
-        // ============= MATRIX RAIN EFFECT =============
-        const matrixCanvas = document.getElementById('matrix');
-        const matrixCtx = matrixCanvas.getContext('2d');
-        matrixCanvas.width = window.innerWidth;
-        matrixCanvas.height = window.innerHeight;
-
-        const matrixChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*()';
-        const fontSize = 14;
-        const columns = matrixCanvas.width / fontSize;
-        const drops = Array(Math.floor(columns)).fill(1);
-
-        function drawMatrix() {
-            matrixCtx.fillStyle = 'rgba(15, 23, 42, 0.05)';
-            matrixCtx.fillRect(0, 0, matrixCanvas.width, matrixCanvas.height);
-            
-            matrixCtx.fillStyle = '#0f0';
-            matrixCtx.font = fontSize + 'px monospace';
-            
-            for (let i = 0; i < drops.length; i++) {
-                const text = matrixChars[Math.floor(Math.random() * matrixChars.length)];
-                matrixCtx.fillText(text, i * fontSize, drops[i] * fontSize);
-                
-                if (drops[i] * fontSize > matrixCanvas.height && Math.random() > 0.975) {
-                    drops[i] = 0;
-                }
-                drops[i]++;
-            }
-        }
-
-        let matrixInterval;
-        
-        // ============= TYPING EFFECT =============
-        const texts = [
-            "Full-stack developer 💻",
-            "UI/UX enthusiast 🎨",
-            "Creative coder ✨",
-            "Problem solver 🧩",
-            "Coffee addict ☕",
-            "Open source contributor 🌟"
-        ];
-        let textIndex = 0;
-        let charIndex = 0;
-        let isDeleting = false;
-        const typedTextElement = document.getElementById('typed-text');
-
-        function typeText() {
-            const currentText = texts[textIndex];
-            
-            if (!isDeleting) {
-                typedTextElement.textContent = currentText.substring(0, charIndex);
-                charIndex++;
-                
-                if (charIndex > currentText.length) {
-                    isDeleting = true;
-                    setTimeout(typeText, 2000);
-                    return;
-                }
-            } else {
-                typedTextElement.textContent = currentText.substring(0, charIndex);
-                charIndex--;
-                
-                if (charIndex === 0) {
-                    isDeleting = false;
-                    textIndex = (textIndex + 1) % texts.length;
-                }
-            }
-            
-            setTimeout(typeText, isDeleting ? 50 : 100);
-        }
-        setTimeout(typeText, 1000);
-
-        // ============= SMOOTH SCROLLING =============
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({ behavior: 'smooth' });
-                }
-            });
-        });
-
-        // ============= SCROLL ANIMATIONS =============
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -100px 0px'
+        input.onkeydown = (e) => {
+          if (e.key === "Enter" && filtered[0]) { closePalette(); filtered[0].run(); }
+          if (e.key === "Escape") closePalette();
         };
+      }
 
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
-                }
-            });
-        }, observerOptions);
+      function openPalette(){
+        palette.classList.add("open");
+        palette.setAttribute("aria-hidden","false");
+        input.value = "";
+        renderActions("");
+        input.focus();
+      }
+      function closePalette(){
+        palette.classList.remove("open");
+        palette.setAttribute("aria-hidden","true");
+      }
 
-        document.querySelectorAll('.fade-in, h2').forEach(el => observer.observe(el));
+      document.getElementById("openPalette")?.addEventListener("click", (e) => { e.preventDefault(); openPalette(); });
+      document.getElementById("openPalette2")?.addEventListener("click", (e) => { e.preventDefault(); openPalette(); });
+      document.getElementById("openPaletteMobile")?.addEventListener("click", (e) => { e.preventDefault(); openPalette(); });
+      palette.addEventListener("click", (e) => { if (e.target === palette) closePalette(); });
 
-        // ============= HIDE/SHOW NAVBAR =============
-        let lastScroll = 0;
-        const navbar = document.getElementById('navbar');
+      window.addEventListener("keydown", (e) => {
+        const isK = (e.key || "").toLowerCase() === "k";
+        if ((e.ctrlKey || e.metaKey) && isK) { e.preventDefault(); openPalette(); }
+      });
+    })();
+  </script>
 
-        window.addEventListener('scroll', () => {
-            const currentScroll = window.pageYOffset;
-            
-            if (currentScroll > lastScroll && currentScroll > 100) {
-                navbar.classList.add('hidden');
-            } else {
-                navbar.classList.remove('hidden');
-            }
-            
-            lastScroll = currentScroll;
-        });
-
-        // ============= PARALLAX EFFECT =============
-        window.addEventListener('scroll', () => {
-            const scrolled = window.pageYOffset;
-            const parallaxElements = document.querySelectorAll('.about-image');
-            parallaxElements.forEach(el => {
-                const speed = 0.3;
-                el.style.transform = `translateY(${scrolled * speed}px) rotate(${scrolled * 0.05}deg)`;
-            });
-        });
-
-        // ============= FORM SUBMISSION =============
-        document.getElementById('contact-form').addEventListener('submit', (e) => {
-            e.preventDefault();
-            
-            // Fireworks effect
-            createFireworks();
-            
-            showNotification('Message sent! I\'ll get back to you soon 🚀');
-            e.target.reset();
-        });
-
-        function createFireworks() {
-            for (let i = 0; i < 50; i++) {
-                setTimeout(() => {
-                    const firework = document.createElement('div');
-                    firework.className = 'firework';
-                    firework.style.left = Math.random() * window.innerWidth + 'px';
-                    firework.style.top = Math.random() * window.innerHeight + 'px';
-                    firework.style.background = `hsl(${Math.random() * 360}, 100%, 50%)`;
-                    document.body.appendChild(firework);
-                    
-                    const angle = Math.random() * Math.PI * 2;
-                    const velocity = 5 + Math.random() * 5;
-                    let vx = Math.cos(angle) * velocity;
-                    let vy = Math.sin(angle) * velocity;
-                    let x = parseFloat(firework.style.left);
-                    let y = parseFloat(firework.style.top);
-                    
-                    function animateFirework() {
-                        x += vx;
-                        y += vy;
-                        vy += 0.2; // gravity
-                        
-                        firework.style.left = x + 'px';
-                        firework.style.top = y + 'px';
-                        
-                        if (y < window.innerHeight) {
-                            requestAnimationFrame(animateFirework);
-                        } else {
-                            firework.remove();
-                        }
-                    }
-                    animateFirework();
-                }, i * 20);
-            }
-        }
-
-        // ============= KONAMI CODE =============
-        let konamiCode = [];
-        const konamiSequence = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
-        
-        window.addEventListener('keydown', (e) => {
-            konamiCode.push(e.key);
-            konamiCode = konamiCode.slice(-10);
-            
-            if (konamiCode.join(',') === konamiSequence.join(',')) {
-                matrixCanvas.classList.add('active');
-                if (!matrixInterval) {
-                    matrixInterval = setInterval(drawMatrix, 33);
-                }
-                showNotification('🎮 Matrix mode activated!');
-                setTimeout(() => {
-                    matrixCanvas.classList.remove('active');
-                    clearInterval(matrixInterval);
-                    matrixInterval = null;
-                }, 10000);
-            }
-        });
-
-        // ============= SKILL TAGS CLICK =============
-        document.querySelectorAll('.skill-tag').forEach(tag => {
-            tag.addEventListener('click', () => {
-                const skill = tag.textContent;
-                showNotification(`${skill} is awesome! 💪`);
-                
-                // Random color change
-                tag.style.background = `hsl(${Math.random() * 360}, 70%, 50%)`;
-                tag.style.color = 'white';
-                tag.style.borderColor = 'transparent';
-                
-                setTimeout(() => {
-                    tag.style.background = '';
-                    tag.style.color = '';
-                    tag.style.borderColor = '';
-                }, 1000);
-            });
-        });
-
-        // ============= PROJECT CARDS CLICK =============
-        document.querySelectorAll('.project-card').forEach(card => {
-            card.addEventListener('click', () => {
-                const title = card.querySelector('h3').textContent;
-                showNotification(`Check out ${title}! 🚀`);
-                
-                // Shake animation
-                card.style.animation = 'none';
-                setTimeout(() => {
-                    card.style.animation = '';
-                }, 10);
-            });
-        });
-
-        // ============= DOUBLE CLICK EASTER EGG =============
-        let clickCount = 0;
-        document.querySelector('.hero h1').addEventListener('click', () => {
-            clickCount++;
-            if (clickCount === 3) {
-                document.body.style.transform = 'rotate(180deg)';
-                showNotification('Whoa! Everything is upside down! 🙃');
-                setTimeout(() => {
-                    document.body.style.transform = '';
-                    clickCount = 0;
-                }, 3000);
-            }
-            setTimeout(() => { clickCount = 0; }, 1000);
-        });
-
-        // ============= WINDOW RESIZE =============
-        window.addEventListener('resize', () => {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-            matrixCanvas.width = window.innerWidth;
-            matrixCanvas.height = window.innerHeight;
-        });
-
-        // ============= RANDOM ANIMATIONS =============
-        setInterval(() => {
-            const randomCard = document.querySelectorAll('.project-card')[Math.floor(Math.random() * 6)];
-            if (randomCard) {
-                randomCard.style.transform = 'scale(1.05) rotate(2deg)';
-                setTimeout(() => {
-                    randomCard.style.transform = '';
-                }, 300);
-            }
-        }, 5000);
-
-        // ============= MOUSE LEAVE NOTIFICATION =============
-        document.addEventListener('mouseleave', () => {
-            showNotification('Come back! Don\'t leave! 😢');
-        });
-
-        // ============= SECRET COMMAND =============
-        let secretCommand = '';
-        window.addEventListener('keypress', (e) => {
-            secretCommand += e.key;
-            if (secretCommand.includes('secret')) {
-                createFireworks();
-                showNotification('🎉 You found the secret command!');
-                secretCommand = '';
-            }
-            if (secretCommand.length > 10) {
-                secretCommand = secretCommand.slice(-10);
-            }
-        });
-
-        // ============= TIME BASED GREETINGS =============
-        const hour = new Date().getHours();
-        let greeting = 'Hello';
-        if (hour < 12) greeting = 'Good morning';
-        else if (hour < 18) greeting = 'Good afternoon';
-        else greeting = 'Good evening';
-
-        setTimeout(() => {
-            showNotification(`${greeting}! Welcome to my portfolio 👋`);
-        }, 2000);
-
-        // ============= SCROLL TO TOP =============
-        window.addEventListener('scroll', () => {
-            if (window.pageYOffset > 500) {
-                if (!document.querySelector('.scroll-to-top')) {
-                    const scrollBtn = document.createElement('div');
-                    scrollBtn.className = 'scroll-indicator';
-                    scrollBtn.innerHTML = '↑';
-                    scrollBtn.style.position = 'fixed';
-                    scrollBtn.style.bottom = '2rem';
-                    scrollBtn.style.right = '2rem';
-                    scrollBtn.style.cursor = 'pointer';
-                    scrollBtn.onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
-                    document.body.appendChild(scrollBtn);
-                }
-            }
-        });
-    </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "oakvx",
+    "jobTitle": "Sviluppatore full-stack",
+    "email": "mailto:oakvx7@gmail.com",
+    "url": "",
+    "sameAs": [
+      "https://github.com/oakvx",
+      "https://instagram.com/oakvx",
+      "https://www.tiktok.com/@oakvx.sh"
+    ]
+  }
+  </script>
 </body>
 </html>
