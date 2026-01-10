@@ -13,6 +13,28 @@
   <meta name="author" content="oakvx" />
   <meta name="robots" content="index,follow,max-image-preview:large" />
   <link rel="canonical" href="https://oakvxish.github.io/" />
+  <script>
+    // Canonicalize URL (https + no /index.html + trailing slash)
+    (function () {
+      try {
+        const { protocol, host, pathname, search, hash } = window.location;
+
+        let path = pathname;
+
+        // /index.html -> /
+        path = path.replace(/\/index\.html$/i, "/");
+
+        // add trailing slash if no extension and not already ended
+        const hasExt = /\.[a-z0-9]+$/i.test(path);
+        if (!hasExt && !path.endsWith("/")) path += "/";
+
+        const target = "https://" + host + path + search + hash;
+        const current = protocol + "//" + host + pathname + search + hash;
+
+        if (protocol !== "https:" || current !== target) window.location.replace(target);
+      } catch (e) {}
+    })();
+  </script>
   <link rel="sitemap" type="application/xml" href="https://oakvxish.github.io/sitemap.xml">
 
   <!-- Open Graph -->
@@ -44,13 +66,17 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
 
-  <!-- Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <!-- Fonts (non render-blocking) -->
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  </noscript>
 
   <!-- Favicons -->
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
   <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+  <link rel="shortcut icon" href="/favicon.ico" />
 
   <style>
     :root{
@@ -907,6 +933,25 @@
       .cursor, .cursor-dot{display:none}
     }
   </style>
+
+  <!-- Analytics (GA4) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+
+    // Consent Mode (default deny) — dopo consenso cookie setta a "granted"
+    gtag('consent', 'default', {
+      analytics_storage: 'denied',
+      ad_storage: 'denied',
+      ad_user_data: 'denied',
+      ad_personalization: 'denied',
+      wait_for_update: 500
+    });
+
+    gtag('js', new Date());
+    gtag('config', 'G-XXXXXXXXXX');
+  </script>
 </head>
 
 <body>
@@ -947,7 +992,7 @@
       <div data-reveal>
         <div class="pill">Node.js • Product engineering</div>
 
-        <h1>Costruisco prodotti che automatizzano flussi operativi.</h1>
+        <h1>Sviluppatore Node.js a Bologna — automazioni e prodotti per flussi operativi.</h1>
 
         <p class="lead">
           Sono uno <b>sviluppatore Node.js a Bologna</b>. Creo automazioni e sistemi che trasformano richieste (chat / form / email)
@@ -1379,574 +1424,577 @@
   <div id="toast" aria-live="polite"></div>
 
   <script>
-    
     (function(){
-      const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      const $ = (s, r=document) => r.querySelector(s);
-      const $$ = (s, r=document) => Array.from(r.querySelectorAll(s));
-      const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
+      try{
+        const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        const $ = (s, r=document) => r.querySelector(s);
+        const $$ = (s, r=document) => Array.from(r.querySelectorAll(s));
+        const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
 
-      // toast
-      const toastEl = $("#toast");
-      let toastT = null;
-      function toast(msg){
-        clearTimeout(toastT);
-        toastEl.textContent = msg;
-        toastEl.classList.add("show");
-        toastT = setTimeout(() => toastEl.classList.remove("show"), 1400);
-      }
-
-      // copy email
-      $("#copyEmail")?.addEventListener("click", async () => {
-        try{
-          await navigator.clipboard.writeText("oakvx7@gmail.com");
-          toast("Email copiata");
-        }catch{
-          toast("Clipboard non disponibile");
+        // toast
+        const toastEl = $("#toast");
+        let toastT = null;
+        function toast(msg){
+          clearTimeout(toastT);
+          toastEl.textContent = msg;
+          toastEl.classList.add("show");
+          toastT = setTimeout(() => toastEl.classList.remove("show"), 1400);
         }
-      });
 
-      // reveal on scroll
-      (function initReveal(){
-        if (reduceMotion) {
-          $$("[data-reveal]").forEach(el => el.classList.add("is-visible"));
-          return;
+        // copy email
+        $("#copyEmail")?.addEventListener("click", async () => {
+          try{
+            await navigator.clipboard.writeText("oakvx7@gmail.com");
+            toast("Email copiata");
+          }catch{
+            toast("Clipboard non disponibile");
+          }
+        });
+
+        // reveal on scroll
+        (function initReveal(){
+          if (reduceMotion) {
+            $$("[data-reveal]").forEach(el => el.classList.add("is-visible"));
+            return;
+          }
+          const io = new IntersectionObserver((entries) => {
+            for (const e of entries){
+              if (e.isIntersecting){
+                e.target.classList.add("is-visible");
+                io.unobserve(e.target);
+              }
+            }
+          }, { threshold: 0.12 });
+          $$("[data-reveal]").forEach(el => io.observe(el));
+        })();
+
+        // scrollspy
+        (function initSpy(){
+          const links = $$("[data-spy]");
+          const map = new Map();
+          links.forEach(a => map.set(a.getAttribute("href"), a));
+
+          const sections = ["#services","#projects","#focus","#notes","#contact"]
+            .map(id => $(id))
+            .filter(Boolean);
+
+          const io = new IntersectionObserver((entries) => {
+            let best = null;
+            for (const e of entries){
+              if (!e.isIntersecting) continue;
+              if (!best || e.intersectionRatio > best.intersectionRatio) best = e;
+            }
+            if (!best) return;
+            links.forEach(a => a.classList.remove("active"));
+            const id = "#" + best.target.id;
+            map.get(id)?.classList.add("active");
+          }, { threshold: [0.2,0.35,0.5,0.65] });
+
+          sections.forEach(s => io.observe(s));
+        })();
+
+        // FAB show/hide + scroll top
+        const fab = $("#fab");
+        const topBtn = $("#scrollTopBtn");
+        function onScroll(){
+          const y = window.scrollY || 0;
+          if (y > 600) fab?.classList.remove("hide");
+          else fab?.classList.add("hide");
         }
-        const io = new IntersectionObserver((entries) => {
-          for (const e of entries){
-            if (e.isIntersecting){
-              e.target.classList.add("is-visible");
-              io.unobserve(e.target);
+        window.addEventListener("scroll", onScroll, { passive:true });
+        onScroll();
+        topBtn?.addEventListener("click", () => window.scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" }));
+
+        // pointer FX (cursor + spotlight)
+        (function initPointerFX(){
+          if (reduceMotion) return;
+
+          const root = document.documentElement;
+          const cursor = $("#cursor");
+          const dot = $("#cursorDot");
+          if (!cursor || !dot) return;
+
+          let mx = window.innerWidth * 0.5, my = window.innerHeight * 0.2;
+          let cx = mx, cy = my;
+          let dx = mx, dy = my;
+
+          function setVars(){
+            root.style.setProperty("--mx", mx + "px");
+            root.style.setProperty("--my", my + "px");
+          }
+
+          window.addEventListener("pointermove", (e) => {
+            mx = e.clientX; my = e.clientY;
+            setVars();
+          }, { passive:true });
+
+          const hoverSel = "a, button, .btn, .project, [role='button']";
+          document.addEventListener("pointerover", (e) => {
+            if (e.target && e.target.closest && e.target.closest(hoverSel)) cursor.classList.add("is-hover");
+          });
+          document.addEventListener("pointerout", (e) => {
+            if (e.target && e.target.closest && e.target.closest(hoverSel)) cursor.classList.remove("is-hover");
+          });
+
+          let running = true;
+          let rafId = 0;
+
+          function tick(){
+            if (!running) { rafId = 0; return; }
+            cx += (mx - cx) * 0.18;
+            cy += (my - cy) * 0.18;
+            dx += (mx - dx) * 0.38;
+            dy += (my - dy) * 0.38;
+
+            cursor.style.transform = `translate3d(${cx - 17}px, ${cy - 17}px, 0)`;
+            dot.style.transform = `translate3d(${dx - 3.5}px, ${dy - 3.5}px, 0)`;
+
+            rafId = requestAnimationFrame(tick);
+          }
+
+          function start(){ if (!rafId) rafId = requestAnimationFrame(tick); }
+
+          document.addEventListener("visibilitychange", () => {
+            running = !document.hidden;
+            if (running) start();
+          });
+
+          setVars();
+          start();
+        })();
+
+        // tilt cards
+        (function initTilt(){
+          if (reduceMotion) return;
+          const cards = $$("[data-tilt='1']");
+          const MAX_DEG = 6;
+          const MAX_TY = 6;
+
+          for (const card of cards){
+            let raf = 0;
+
+            function update(e){
+              const r = card.getBoundingClientRect();
+              const px = ((e.clientX - r.left) / r.width) * 100;
+              const py = ((e.clientY - r.top) / r.height) * 100;
+              card.style.setProperty("--lx", px.toFixed(2) + "%");
+              card.style.setProperty("--ly", py.toFixed(2) + "%");
+
+              const cx = r.left + r.width/2;
+              const cy = r.top + r.height/2;
+              const dx = (e.clientX - cx) / (r.width/2);
+              const dy = (e.clientY - cy) / (r.height/2);
+
+              const ry = clamp(dx * MAX_DEG, -MAX_DEG, MAX_DEG);
+              const rx = clamp(-dy * MAX_DEG, -MAX_DEG, MAX_DEG);
+              const ty = clamp(-dy * MAX_TY, -MAX_TY, MAX_TY);
+
+              card.style.setProperty("--rx", rx.toFixed(2) + "deg");
+              card.style.setProperty("--ry", ry.toFixed(2) + "deg");
+              card.style.setProperty("--ty", ty.toFixed(2) + "px");
+            }
+
+            card.addEventListener("pointermove", (e) => {
+              cancelAnimationFrame(raf);
+              raf = requestAnimationFrame(() => update(e));
+            });
+            card.addEventListener("pointerleave", () => {
+              card.style.setProperty("--lx", "50%");
+              card.style.setProperty("--ly", "50%");
+              card.style.setProperty("--rx", "0deg");
+              card.style.setProperty("--ry", "0deg");
+              card.style.setProperty("--ty", "0px");
+            });
+          }
+        })();
+
+        // filters
+        (function initFilters(){
+          const chips = $$(".chip[data-filter]");
+          const cards = $$("#projectsGrid .project");
+          function setActive(filter){
+            chips.forEach(c => c.classList.toggle("active", c.dataset.filter === filter));
+            cards.forEach(card => {
+              const tags = (card.dataset.tags || "").split(/\s+/).filter(Boolean);
+              const show = filter === "all" || tags.includes(filter);
+              card.style.display = show ? "" : "none";
+            });
+          }
+          chips.forEach(c => c.addEventListener("click", () => setActive(c.dataset.filter)));
+        })();
+
+        // services carousel controls
+        (function initServicesCarousel(){
+          const viewport = document.getElementById("servicesCarousel");
+          const prev = document.getElementById("servicesPrev");
+          const next = document.getElementById("servicesNext");
+          if (!viewport || !prev || !next) return;
+
+          const track = viewport.querySelector(".carousel-track");
+          if (!track) return;
+
+          const slides = () => Array.from(track.querySelectorAll(".service-slide"));
+
+          const nearestIndex = () => {
+            const ss = slides();
+            if (!ss.length) return 0;
+            const x = viewport.scrollLeft + viewport.clientWidth / 2;
+
+            let best = 0;
+            let bestDist = Infinity;
+            ss.forEach((s, i) => {
+              const center = s.offsetLeft + s.offsetWidth / 2;
+              const d = Math.abs(center - x);
+              if (d < bestDist) { bestDist = d; best = i; }
+            });
+            return best;
+          };
+
+          const scrollToIndex = (i) => {
+            const ss = slides();
+            if (!ss.length) return;
+            const n = ss.length;
+            const idx = ((i % n) + n) % n;
+            viewport.scrollTo({
+              left: ss[idx].offsetLeft,
+              behavior: reduceMotion ? "auto" : "smooth"
+            });
+          };
+
+          prev.addEventListener("click", () => scrollToIndex(nearestIndex() - 1));
+          next.addEventListener("click", () => scrollToIndex(nearestIndex() + 1));
+
+          viewport.addEventListener("keydown", (e) => {
+            if (e.key === "ArrowLeft") { e.preventDefault(); scrollToIndex(nearestIndex() - 1); }
+            if (e.key === "ArrowRight") { e.preventDefault(); scrollToIndex(nearestIndex() + 1); }
+          });
+        })();
+
+        // focus trap helper
+        function trapFocus(container){
+          const sel = [
+            "a[href]", "button:not([disabled])", "input:not([disabled])",
+            "select:not([disabled])", "textarea:not([disabled])",
+            "[tabindex]:not([tabindex='-1'])"
+          ].join(",");
+
+          function onKeydown(e){
+            if (e.key !== "Tab") return;
+            const items = Array.from(container.querySelectorAll(sel)).filter(el => el.offsetParent !== null);
+            if (!items.length) return;
+
+            const first = items[0];
+            const last  = items[items.length - 1];
+
+            if (e.shiftKey && document.activeElement === first){
+              e.preventDefault(); last.focus();
+            } else if (!e.shiftKey && document.activeElement === last){
+              e.preventDefault(); first.focus();
             }
           }
-        }, { threshold: 0.12 });
-        $$("[data-reveal]").forEach(el => io.observe(el));
-      })();
 
-      // scrollspy
-      (function initSpy(){
-        const links = $$("[data-spy]");
-        const map = new Map();
-        links.forEach(a => map.set(a.getAttribute("href"), a));
-
-        const sections = ["#services","#projects","#focus","#notes","#contact"]
-          .map(id => $(id))
-          .filter(Boolean);
-
-        const io = new IntersectionObserver((entries) => {
-          let best = null;
-          for (const e of entries){
-            if (!e.isIntersecting) continue;
-            if (!best || e.intersectionRatio > best.intersectionRatio) best = e;
-          }
-          if (!best) return;
-          links.forEach(a => a.classList.remove("active"));
-          const id = "#" + best.target.id;
-          map.get(id)?.classList.add("active");
-        }, { threshold: [0.2,0.35,0.5,0.65] });
-
-        sections.forEach(s => io.observe(s));
-      })();
-
-      // FAB show/hide + scroll top
-      const fab = $("#fab");
-      const topBtn = $("#scrollTopBtn");
-      function onScroll(){
-        const y = window.scrollY || 0;
-        if (y > 600) fab?.classList.remove("hide");
-        else fab?.classList.add("hide");
-      }
-      window.addEventListener("scroll", onScroll, { passive:true });
-      onScroll();
-      topBtn?.addEventListener("click", () => window.scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" }));
-
-      // pointer FX (cursor + spotlight)
-      (function initPointerFX(){
-        if (reduceMotion) return;
-
-        const root = document.documentElement;
-        const cursor = $("#cursor");
-        const dot = $("#cursorDot");
-        if (!cursor || !dot) return;
-
-        let mx = window.innerWidth * 0.5, my = window.innerHeight * 0.2;
-        let cx = mx, cy = my;
-        let dx = mx, dy = my;
-
-        function setVars(){
-          root.style.setProperty("--mx", mx + "px");
-          root.style.setProperty("--my", my + "px");
+          container.addEventListener("keydown", onKeydown);
+          return () => container.removeEventListener("keydown", onKeydown);
         }
 
-        window.addEventListener("pointermove", (e) => {
-          mx = e.clientX; my = e.clientY;
-          setVars();
-        }, { passive:true });
-
-        const hoverSel = "a, button, .btn, .project, [role='button']";
-        document.addEventListener("pointerover", (e) => {
-          if (e.target && e.target.closest && e.target.closest(hoverSel)) cursor.classList.add("is-hover");
-        });
-        document.addEventListener("pointerout", (e) => {
-          if (e.target && e.target.closest && e.target.closest(hoverSel)) cursor.classList.remove("is-hover");
-        });
-
-        let running = true;
-        let rafId = 0;
-
-        function tick(){
-          if (!running) { rafId = 0; return; }
-          cx += (mx - cx) * 0.18;
-          cy += (my - cy) * 0.18;
-          dx += (mx - dx) * 0.38;
-          dy += (my - dy) * 0.38;
-
-          cursor.style.transform = `translate3d(${cx - 17}px, ${cy - 17}px, 0)`;
-          dot.style.transform = `translate3d(${dx - 3.5}px, ${dy - 3.5}px, 0)`;
-
-          rafId = requestAnimationFrame(tick);
-        }
-
-        function start(){ if (!rafId) rafId = requestAnimationFrame(tick); }
-
-        document.addEventListener("visibilitychange", () => {
-          running = !document.hidden;
-          if (running) start();
-        });
-
-        setVars();
-        start();
-      })();
-
-      // tilt cards
-      (function initTilt(){
-        if (reduceMotion) return;
-        const cards = $$("[data-tilt='1']");
-        const MAX_DEG = 6;
-        const MAX_TY = 6;
-
-        for (const card of cards){
-          let raf = 0;
-
-          function update(e){
-            const r = card.getBoundingClientRect();
-            const px = ((e.clientX - r.left) / r.width) * 100;
-            const py = ((e.clientY - r.top) / r.height) * 100;
-            card.style.setProperty("--lx", px.toFixed(2) + "%");
-            card.style.setProperty("--ly", py.toFixed(2) + "%");
-
-            const cx = r.left + r.width/2;
-            const cy = r.top + r.height/2;
-            const dx = (e.clientX - cx) / (r.width/2);
-            const dy = (e.clientY - cy) / (r.height/2);
-
-            const ry = clamp(dx * MAX_DEG, -MAX_DEG, MAX_DEG);
-            const rx = clamp(-dy * MAX_DEG, -MAX_DEG, MAX_DEG);
-            const ty = clamp(-dy * MAX_TY, -MAX_TY, MAX_TY);
-
-            card.style.setProperty("--rx", rx.toFixed(2) + "deg");
-            card.style.setProperty("--ry", ry.toFixed(2) + "deg");
-            card.style.setProperty("--ty", ty.toFixed(2) + "px");
-          }
-
-          card.addEventListener("pointermove", (e) => {
-            cancelAnimationFrame(raf);
-            raf = requestAnimationFrame(() => update(e));
-          });
-          card.addEventListener("pointerleave", () => {
-            card.style.setProperty("--lx", "50%");
-            card.style.setProperty("--ly", "50%");
-            card.style.setProperty("--rx", "0deg");
-            card.style.setProperty("--ry", "0deg");
-            card.style.setProperty("--ty", "0px");
-          });
-        }
-      })();
-
-      // filters
-      (function initFilters(){
-        const chips = $$(".chip[data-filter]");
-        const cards = $$("#projectsGrid .project");
-        function setActive(filter){
-          chips.forEach(c => c.classList.toggle("active", c.dataset.filter === filter));
-          cards.forEach(card => {
-            const tags = (card.dataset.tags || "").split(/\s+/).filter(Boolean);
-            const show = filter === "all" || tags.includes(filter);
-            card.style.display = show ? "" : "none";
-          });
-        }
-        chips.forEach(c => c.addEventListener("click", () => setActive(c.dataset.filter)));
-      })();
-
-      // services carousel controls
-      (function initServicesCarousel(){
-        const viewport = document.getElementById("servicesCarousel");
-        const prev = document.getElementById("servicesPrev");
-        const next = document.getElementById("servicesNext");
-        if (!viewport || !prev || !next) return;
-
-        const track = viewport.querySelector(".carousel-track");
-        if (!track) return;
-
-        const slides = () => Array.from(track.querySelectorAll(".service-slide"));
-
-        const nearestIndex = () => {
-          const ss = slides();
-          if (!ss.length) return 0;
-          const x = viewport.scrollLeft + viewport.clientWidth / 2;
-
-          let best = 0;
-          let bestDist = Infinity;
-          ss.forEach((s, i) => {
-            const center = s.offsetLeft + s.offsetWidth / 2;
-            const d = Math.abs(center - x);
-            if (d < bestDist) { bestDist = d; best = i; }
-          });
-          return best;
-        };
-
-        const scrollToIndex = (i) => {
-          const ss = slides();
-          if (!ss.length) return;
-          const n = ss.length;
-          const idx = ((i % n) + n) % n;
-          viewport.scrollTo({
-            left: ss[idx].offsetLeft,
-            behavior: reduceMotion ? "auto" : "smooth"
-          });
-        };
-
-        prev.addEventListener("click", () => scrollToIndex(nearestIndex() - 1));
-        next.addEventListener("click", () => scrollToIndex(nearestIndex() + 1));
-
-        viewport.addEventListener("keydown", (e) => {
-          if (e.key === "ArrowLeft") { e.preventDefault(); scrollToIndex(nearestIndex() - 1); }
-          if (e.key === "ArrowRight") { e.preventDefault(); scrollToIndex(nearestIndex() + 1); }
-        });
-      })();
-
-      // focus trap helper
-      function trapFocus(container){
-        const sel = [
-          "a[href]", "button:not([disabled])", "input:not([disabled])",
-          "select:not([disabled])", "textarea:not([disabled])",
-          "[tabindex]:not([tabindex='-1'])"
-        ].join(",");
-
-        function onKeydown(e){
-          if (e.key !== "Tab") return;
-          const items = Array.from(container.querySelectorAll(sel)).filter(el => el.offsetParent !== null);
-          if (!items.length) return;
-
-          const first = items[0];
-          const last  = items[items.length - 1];
-
-          if (e.shiftKey && document.activeElement === first){
-            e.preventDefault(); last.focus();
-          } else if (!e.shiftKey && document.activeElement === last){
-            e.preventDefault(); first.focus();
-          }
-        }
-
-        container.addEventListener("keydown", onKeydown);
-        return () => container.removeEventListener("keydown", onKeydown);
-      }
-
-      // PROJECT DATA (schede modal)
-      const PROJECTS = {
-        synk: {
-          pill: { cls: "pill dev", text: "in sviluppo • 2025" },
-          title: "synk — assistente operativo in chat (Node.js)",
-          problem:
-            "Prenotazioni in chat = caos: orari non aggiornati, doppie richieste, utenti che cambiano idea a metà e integrazioni esterne che ogni tanto non rispondono.",
-          solution:
-            "synk rende la conversazione una procedura guidata: propone orari reali, mette lo slot “in pausa” mentre confermi, crea l’evento e salva tutto. Se arrivano messaggi duplicati o ravvicinati, li filtra e mantiene il flusso pulito.",
-          details: [
-            "Disponibilità leggibile: lista compatta per fasce (mattina/pomeriggio/sera) basata su calendario.",
-            "Slot protetto: quando scegli un orario, synk lo riserva per pochi minuti per evitare conflitti.",
-            "Conferme e gestione: può chiedere una conferma finale e gestisce spostamenti/annulli senza confusione.",
-            "Privacy e follow-up: informativa, comando per cancellare dati chat, promemoria e richiesta feedback."
-          ],
-          features: [
-            "Orari reali via Calendar free/busy",
-            "Riserva temporanea dello slot",
-            "Filtro messaggi duplicati",
-            "IT/EN (scelta automatica)",
-            "Promemoria + richiesta feedback",
-            "Privacy: “privacy” / “cancella dati”"
-          ],
-          roadmap: [
-            "Dashboard admin (stato conversazioni + prenotazioni)",
-            "Integrazioni extra (CRM, pagamenti, ecc.)",
-            "Metriche e tracing end-to-end",
-            "Multi-canale oltre WhatsApp"
-          ],
-          arch: `chat (WhatsApp)
+        // PROJECT DATA (schede modal)
+        const PROJECTS = {
+          synk: {
+            pill: { cls: "pill dev", text: "in sviluppo • 2025" },
+            title: "synk — assistente operativo in chat (Node.js)",
+            problem:
+              "Prenotazioni in chat = caos: orari non aggiornati, doppie richieste, utenti che cambiano idea a metà e integrazioni esterne che ogni tanto non rispondono.",
+            solution:
+              "synk rende la conversazione una procedura guidata: propone orari reali, mette lo slot “in pausa” mentre confermi, crea l’evento e salva tutto. Se arrivano messaggi duplicati o ravvicinati, li filtra e mantiene il flusso pulito.",
+            details: [
+              "Disponibilità leggibile: lista compatta per fasce (mattina/pomeriggio/sera) basata su calendario.",
+              "Slot protetto: quando scegli un orario, synk lo riserva per pochi minuti per evitare conflitti.",
+              "Conferme e gestione: può chiedere una conferma finale e gestisce spostamenti/annulli senza confusione.",
+              "Privacy e follow-up: informativa, comando per cancellare dati chat, promemoria e richiesta feedback."
+            ],
+            features: [
+              "Orari reali via Calendar free/busy",
+              "Riserva temporanea dello slot",
+              "Filtro messaggi duplicati",
+              "IT/EN (scelta automatica)",
+              "Promemoria + richiesta feedback",
+              "Privacy: “privacy” / “cancella dati”"
+            ],
+            roadmap: [
+              "Dashboard admin (stato conversazioni + prenotazioni)",
+              "Integrazioni extra (CRM, pagamenti, ecc.)",
+              "Metriche e tracing end-to-end",
+              "Multi-canale oltre WhatsApp"
+            ],
+            arch: `chat (WhatsApp)
   -> parsing + stato conversazione
   -> calendario (free/busy)
   -> slot in pausa (scadenza breve)
   -> crea evento + salva prenotazione
   -> promemoria + feedback`,
-          stack: ["Node.js", "WhatsApp", "Google Calendar", "State machine", "Queue/Jobs", "Audit log"]
-        },
+            stack: ["Node.js", "WhatsApp", "Google Calendar", "State machine", "Queue/Jobs", "Audit log"]
+          },
 
-        dash: {
-          pill: { cls: "pill ok", text: "rilasciato • 2025" },
-          title: "Δash — gestionale modulare data-first",
-          problem:
-            "Quando i dati sono sparsi (note, fogli, chat), il lavoro rallenta: non sai a che punto sono le cose, cosa manca e chi ha fatto cosa.",
-          solution:
-            "Δash centralizza il flusso: anagrafiche, schede, stati, checklist, storico e report. Si adatta al dominio (non solo officine): puoi modellare entità e passaggi in base al processo reale.",
-          details: [
-            "Workflow chiaro: stati e transizioni che rispecchiano come lavori davvero.",
-            "Campi personalizzati: aggiungi informazioni senza distruggere l’interfaccia.",
-            "Storico consultabile: ricostruisci cosa è successo e quando.",
-            "Export e template: dati pronti per reportistica e condivisione."
-          ],
-          features: [
-            "Anagrafiche + schede operative",
-            "Stati + checklist",
-            "Ricerca e filtri",
-            "Storico e report",
-            "Template/export"
-          ],
-          roadmap: [
-            "Report avanzati",
-            "Import CSV con validazione",
-            "Notifiche/scadenze",
-            "Permessi avanzati per team (opz.)"
-          ],
-          arch: `ui -> api
+          dash: {
+            pill: { cls: "pill ok", text: "rilasciato • 2025" },
+            title: "Δash — gestionale modulare data-first",
+            problem:
+              "Quando i dati sono sparsi (note, fogli, chat), il lavoro rallenta: non sai a che punto sono le cose, cosa manca e chi ha fatto cosa.",
+            solution:
+              "Δash centralizza il flusso: anagrafiche, schede, stati, checklist, storico e report. Si adatta al dominio (non solo officine): puoi modellare entità e passaggi in base al processo reale.",
+            details: [
+              "Workflow chiaro: stati e transizioni che rispecchiano come lavori davvero.",
+              "Campi personalizzati: aggiungi informazioni senza distruggere l’interfaccia.",
+              "Storico consultabile: ricostruisci cosa è successo e quando.",
+              "Export e template: dati pronti per reportistica e condivisione."
+            ],
+            features: [
+              "Anagrafiche + schede operative",
+              "Stati + checklist",
+              "Ricerca e filtri",
+              "Storico e report",
+              "Template/export"
+            ],
+            roadmap: [
+              "Report avanzati",
+              "Import CSV con validazione",
+              "Notifiche/scadenze",
+              "Permessi avanzati per team (opz.)"
+            ],
+            arch: `ui -> api
   -> services (entities, workflow, export)
   -> db (migrations)
   -> audit (opz.)
   -> report`,
-          stack: ["Data-first", "Workflow", "Dashboard", "Export", "Audit (opz.)"]
-        }
-      };
-
-      // modal
-      const modal = $("#projectModal");
-      const closeBtn = $("#closeModal");
-      const modalTitle = $("#modalTitle");
-      const modalPill = $("#modalPill");
-      const modalBody = $("#modalBody");
-
-      let releaseModalTrap = null;
-      let lastFocus = null;
-
-      function openDialog(dialogEl, focusEl){
-        lastFocus = document.activeElement;
-        dialogEl.classList.add("open");
-        dialogEl.setAttribute("aria-hidden","false");
-        document.body.style.overflow = "hidden";
-
-        const roleDialog = dialogEl.querySelector("[role='dialog']");
-        releaseModalTrap?.();
-        if (roleDialog) releaseModalTrap = trapFocus(roleDialog);
-
-        (focusEl || roleDialog || dialogEl).focus?.();
-      }
-
-      function closeDialog(dialogEl){
-        dialogEl.classList.remove("open");
-        dialogEl.setAttribute("aria-hidden","true");
-        document.body.style.overflow = "";
-        releaseModalTrap?.(); releaseModalTrap = null;
-        lastFocus?.focus?.();
-      }
-
-      function openProject(key){
-        const p = PROJECTS[key];
-        if(!p) return;
-
-        modalTitle.textContent = p.title;
-        modalPill.className = p.pill.cls;
-        modalPill.textContent = p.pill.text;
-
-        modalBody.innerHTML = `
-          <div class="panel">
-            <h4>Cosa risolve</h4>
-            <p>${p.problem}</p>
-          </div>
-
-          <div class="panel">
-            <h4>Come lo risolve</h4>
-            <p>${p.solution}</p>
-          </div>
-
-          <div class="panel">
-            <h4>Cosa succede step-by-step</h4>
-            <ul>${(p.details || []).map(x => `<li>${x}</li>`).join("")}</ul>
-          </div>
-
-          <div class="panel">
-            <h4>Cosa include</h4>
-            <ul>${p.features.map(x => `<li>${x}</li>`).join("")}</ul>
-          </div>
-
-          <div class="panel">
-            <h4>Pipeline</h4>
-            <div class="codebox">${p.arch}</div>
-          </div>
-
-          <div class="panel">
-            <h4>Prossimi step</h4>
-            <ul>${p.roadmap.map(x => `<li>${x}</li>`).join("")}</ul>
-          </div>
-
-          <div class="panel">
-            <h4>Stack</h4>
-            <div class="stackline">
-              ${p.stack.map(s => `<span class="tag">${s}</span>`).join("")}
-            </div>
-          </div>
-        `;
-
-        openDialog(modal, closeBtn);
-      }
-
-      function closeProject(){ closeDialog(modal); }
-
-      // open handlers
-      $$("[data-detail]")?.forEach(btn => {
-        btn.addEventListener("click", (e) => {
-          e.preventDefault();
-          const key = btn.getAttribute("data-detail");
-          openProject(key);
-        });
-      });
-
-      $$(".project")?.forEach(card => {
-        card.addEventListener("click", (e) => {
-          const a = e.target.closest("a,button");
-          if (a) return;
-          const key = card.getAttribute("data-open");
-          openProject(key);
-        });
-
-        card.addEventListener("keydown", (e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            const key = card.getAttribute("data-open");
-            openProject(key);
+            stack: ["Data-first", "Workflow", "Dashboard", "Export", "Audit (opz.)"]
           }
-        });
-      });
+        };
 
-      closeBtn?.addEventListener("click", closeProject);
-      modal?.addEventListener("click", (e) => { if(e.target?.dataset?.close) closeProject(); });
-      window.addEventListener("keydown", (e) => { if(e.key === "Escape" && modal.classList.contains("open")) closeProject(); });
+        // modal
+        const modal = $("#projectModal");
+        const closeBtn = $("#closeModal");
+        const modalTitle = $("#modalTitle");
+        const modalPill = $("#modalPill");
+        const modalBody = $("#modalBody");
 
-      // command palette
-      const palette = $("#palette");
-      const input = $("#paletteInput");
-      const list = $("#paletteList");
-      let activeIdx = 0;
-      let filtered = [];
-      let releasePaletteTrap = null;
+        let releaseModalTrap = null;
+        let lastFocus = null;
 
-      function scrollToSel(sel){
-        const el = $(sel);
-        if (el) el.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth" });
-      }
+        function openDialog(dialogEl, focusEl){
+          lastFocus = document.activeElement;
+          dialogEl.classList.add("open");
+          dialogEl.setAttribute("aria-hidden","false");
+          document.body.style.overflow = "hidden";
 
-      const actions = [
-        { title: "Vai a Servizi", hint: "#services", run: () => scrollToSel("#services") },
-        { title: "Vai a Progetti", hint: "#projects", run: () => scrollToSel("#projects") },
-        { title: "Vai a 2025", hint: "#focus", run: () => scrollToSel("#focus") },
-        { title: "Vai a Build notes", hint: "#notes", run: () => scrollToSel("#notes") },
-        { title: "Vai a Contatti", hint: "#contact", run: () => scrollToSel("#contact") },
-        { title: "Apri synk (dettagli)", hint: "assistente in chat", run: () => openProject("synk") },
-        { title: "Apri Δash (dettagli)", hint: "gestionale modulare", run: () => openProject("dash") },
-        { title: "Copia email", hint: "oakvx7@gmail.com", run: async () => {
-          try{ await navigator.clipboard.writeText("oakvx7@gmail.com"); toast("Email copiata"); }
-          catch{ toast("Clipboard non disponibile"); }
-        }},
-        { title: "Apri GitHub", hint: "github.com/oakvx", run: () => window.open("https://github.com/oakvx", "_blank") },
-        { title: "Apri Instagram", hint: "instagram.com/oakvx", run: () => window.open("https://instagram.com/oakvx", "_blank") },
-        { title: "Apri TikTok", hint: "tiktok.com/@oakvx.sh", run: () => window.open("https://www.tiktok.com/@oakvx.sh", "_blank") },
-      ];
+          const roleDialog = dialogEl.querySelector("[role='dialog']");
+          releaseModalTrap?.();
+          if (roleDialog) releaseModalTrap = trapFocus(roleDialog);
 
-      function score(q, text){
-        q = q.toLowerCase().trim();
-        text = text.toLowerCase();
-        if (!q) return 1;
-        if (text.includes(q)) return 100 - (text.indexOf(q) / 10);
-        let qi = 0, hits = 0;
-        for (let i=0; i<text.length && qi<q.length; i++){
-          if (text[i] === q[qi]) { qi++; hits++; }
+          (focusEl || roleDialog || dialogEl).focus?.();
         }
-        return hits;
-      }
 
-      function renderActions(filter=""){
-        const f = filter.trim();
-        filtered = actions
-          .map(a => ({...a, _s: score(f, a.title + " " + a.hint)}))
-          .filter(a => a._s > 0)
-          .sort((a,b) => b._s - a._s)
-          .slice(0, 12);
+        function closeDialog(dialogEl){
+          dialogEl.classList.remove("open");
+          dialogEl.setAttribute("aria-hidden","true");
+          document.body.style.overflow = "";
+          releaseModalTrap?.(); releaseModalTrap = null;
+          lastFocus?.focus?.();
+        }
 
-        activeIdx = 0;
+        function openProject(key){
+          const p = PROJECTS[key];
+          if(!p) return;
 
-        list.innerHTML = filtered.map((a, idx) => `
-          <div class="item ${idx===0 ? "active":""}" data-idx="${idx}">
-            <div><b>${a.title}</b><small>${a.hint}</small></div>
-            <span class="kbd">↵</span>
-          </div>
-        `).join("");
+          modalTitle.textContent = p.title;
+          modalPill.className = p.pill.cls;
+          modalPill.textContent = p.pill.text;
 
-        $$(".item", list).forEach(el => {
-          el.addEventListener("click", () => {
-            const action = filtered[Number(el.dataset.idx)];
-            closePalette();
-            action?.run?.();
+          modalBody.innerHTML = `
+            <div class="panel">
+              <h4>Cosa risolve</h4>
+              <p>${p.problem}</p>
+            </div>
+
+            <div class="panel">
+              <h4>Come lo risolve</h4>
+              <p>${p.solution}</p>
+            </div>
+
+            <div class="panel">
+              <h4>Cosa succede step-by-step</h4>
+              <ul>${(p.details || []).map(x => `<li>${x}</li>`).join("")}</ul>
+            </div>
+
+            <div class="panel">
+              <h4>Cosa include</h4>
+              <ul>${p.features.map(x => `<li>${x}</li>`).join("")}</ul>
+            </div>
+
+            <div class="panel">
+              <h4>Pipeline</h4>
+              <div class="codebox">${p.arch}</div>
+            </div>
+
+            <div class="panel">
+              <h4>Prossimi step</h4>
+              <ul>${p.roadmap.map(x => `<li>${x}</li>`).join("")}</ul>
+            </div>
+
+            <div class="panel">
+              <h4>Stack</h4>
+              <div class="stackline">
+                ${p.stack.map(s => `<span class="tag">${s}</span>`).join("")}
+              </div>
+            </div>
+          `;
+
+          openDialog(modal, closeBtn);
+        }
+
+        function closeProject(){ closeDialog(modal); }
+
+        // open handlers
+        $$("[data-detail]")?.forEach(btn => {
+          btn.addEventListener("click", (e) => {
+            e.preventDefault();
+            const key = btn.getAttribute("data-detail");
+            openProject(key);
           });
         });
-      }
 
-      function setActiveItem(idx){
-        activeIdx = clamp(idx, 0, Math.max(0, filtered.length-1));
-        $$(".item", list).forEach((el,i) => el.classList.toggle("active", i === activeIdx));
-      }
+        $$(".project")?.forEach(card => {
+          card.addEventListener("click", (e) => {
+            const a = e.target.closest("a,button");
+            if (a) return;
+            const key = card.getAttribute("data-open");
+            openProject(key);
+          });
 
-      function openPalette(){
-        palette.classList.add("open");
-        palette.setAttribute("aria-hidden","false");
-        input.value = "";
-        renderActions("");
-        input.focus();
+          card.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              const key = card.getAttribute("data-open");
+              openProject(key);
+            }
+          });
+        });
 
-        releasePaletteTrap?.();
-        const dialog = palette.querySelector("[role='dialog']");
-        if (dialog) releasePaletteTrap = trapFocus(dialog);
-      }
-      function closePalette(){
-        palette.classList.remove("open");
-        palette.setAttribute("aria-hidden","true");
-        releasePaletteTrap?.(); releasePaletteTrap = null;
-      }
+        closeBtn?.addEventListener("click", closeProject);
+        modal?.addEventListener("click", (e) => { if(e.target?.dataset?.close) closeProject(); });
+        window.addEventListener("keydown", (e) => { if(e.key === "Escape" && modal.classList.contains("open")) closeProject(); });
 
-      $("#openPalette2")?.addEventListener("click", (e) => { e.preventDefault(); openPalette(); });
-      $("#openPaletteMobile")?.addEventListener("click", (e) => { e.preventDefault(); openPalette(); });
-      palette.addEventListener("click", (e) => { if (e.target === palette) closePalette(); });
+        // command palette
+        const palette = $("#palette");
+        const input = $("#paletteInput");
+        const list = $("#paletteList");
+        let activeIdx = 0;
+        let filtered = [];
+        let releasePaletteTrap = null;
 
-      window.addEventListener("keydown", (e) => {
-        const isK = (e.key || "").toLowerCase() === "k";
-        if ((e.ctrlKey || e.metaKey) && isK) { e.preventDefault(); openPalette(); }
-      });
-
-      input?.addEventListener("input", () => renderActions(input.value));
-      input?.addEventListener("keydown", (e) => {
-        if (e.key === "Escape") return closePalette();
-        if (e.key === "Enter") {
-          const a = filtered[activeIdx];
-          if (a) { closePalette(); a.run(); }
+        function scrollToSel(sel){
+          const el = $(sel);
+          if (el) el.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth" });
         }
-        if (e.key === "ArrowDown") { e.preventDefault(); setActiveItem(activeIdx+1); }
-        if (e.key === "ArrowUp") { e.preventDefault(); setActiveItem(activeIdx-1); }
-      });
+
+        const actions = [
+          { title: "Vai a Servizi", hint: "#services", run: () => scrollToSel("#services") },
+          { title: "Vai a Progetti", hint: "#projects", run: () => scrollToSel("#projects") },
+          { title: "Vai a 2025", hint: "#focus", run: () => scrollToSel("#focus") },
+          { title: "Vai a Build notes", hint: "#notes", run: () => scrollToSel("#notes") },
+          { title: "Vai a Contatti", hint: "#contact", run: () => scrollToSel("#contact") },
+          { title: "Apri synk (dettagli)", hint: "assistente in chat", run: () => openProject("synk") },
+          { title: "Apri Δash (dettagli)", hint: "gestionale modulare", run: () => openProject("dash") },
+          { title: "Copia email", hint: "oakvx7@gmail.com", run: async () => {
+            try{ await navigator.clipboard.writeText("oakvx7@gmail.com"); toast("Email copiata"); }
+            catch{ toast("Clipboard non disponibile"); }
+          }},
+          { title: "Apri GitHub", hint: "github.com/oakvx", run: () => window.open("https://github.com/oakvx", "_blank") },
+          { title: "Apri Instagram", hint: "instagram.com/oakvx", run: () => window.open("https://instagram.com/oakvx", "_blank") },
+          { title: "Apri TikTok", hint: "tiktok.com/@oakvx.sh", run: () => window.open("https://www.tiktok.com/@oakvx.sh", "_blank") },
+        ];
+
+        function score(q, text){
+          q = q.toLowerCase().trim();
+          text = text.toLowerCase();
+          if (!q) return 1;
+          if (text.includes(q)) return 100 - (text.indexOf(q) / 10);
+          let qi = 0, hits = 0;
+          for (let i=0; i<text.length && qi<q.length; i++){
+            if (text[i] === q[qi]) { qi++; hits++; }
+          }
+          return hits;
+        }
+
+        function renderActions(filter=""){
+          const f = filter.trim();
+          filtered = actions
+            .map(a => ({...a, _s: score(f, a.title + " " + a.hint)}))
+            .filter(a => a._s > 0)
+            .sort((a,b) => b._s - a._s)
+            .slice(0, 12);
+
+          activeIdx = 0;
+
+          list.innerHTML = filtered.map((a, idx) => `
+            <div class="item ${idx===0 ? "active":""}" data-idx="${idx}">
+              <div><b>${a.title}</b><small>${a.hint}</small></div>
+              <span class="kbd">↵</span>
+            </div>
+          `).join("");
+
+          $$(".item", list).forEach(el => {
+            el.addEventListener("click", () => {
+              const action = filtered[Number(el.dataset.idx)];
+              closePalette();
+              action?.run?.();
+            });
+          });
+        }
+
+        function setActiveItem(idx){
+          activeIdx = clamp(idx, 0, Math.max(0, filtered.length-1));
+          $$(".item", list).forEach((el,i) => el.classList.toggle("active", i === activeIdx));
+        }
+
+        function openPalette(){
+          palette.classList.add("open");
+          palette.setAttribute("aria-hidden","false");
+          input.value = "";
+          renderActions("");
+          input.focus();
+
+          releasePaletteTrap?.();
+          const dialog = palette.querySelector("[role='dialog']");
+          if (dialog) releasePaletteTrap = trapFocus(dialog);
+        }
+        function closePalette(){
+          palette.classList.remove("open");
+          palette.setAttribute("aria-hidden","true");
+          releasePaletteTrap?.(); releasePaletteTrap = null;
+        }
+
+        $("#openPalette2")?.addEventListener("click", (e) => { e.preventDefault(); openPalette(); });
+        $("#openPaletteMobile")?.addEventListener("click", (e) => { e.preventDefault(); openPalette(); });
+        palette.addEventListener("click", (e) => { if (e.target === palette) closePalette(); });
+
+        window.addEventListener("keydown", (e) => {
+          const isK = (e.key || "").toLowerCase() === "k";
+          if ((e.ctrlKey || e.metaKey) && isK) { e.preventDefault(); openPalette(); }
+        });
+
+        input?.addEventListener("input", () => renderActions(input.value));
+        input?.addEventListener("keydown", (e) => {
+          if (e.key === "Escape") return closePalette();
+          if (e.key === "Enter") {
+            const a = filtered[activeIdx];
+            if (a) { closePalette(); a.run(); }
+          }
+          if (e.key === "ArrowDown") { e.preventDefault(); setActiveItem(activeIdx+1); }
+          if (e.key === "ArrowUp") { e.preventDefault(); setActiveItem(activeIdx-1); }
+        });
+      }catch(err){
+        console.warn("ui init failed", err);
+      }
     })();
   </script>
 
