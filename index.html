@@ -140,6 +140,512 @@
       border-radius: 12px;
     }
 
+    /* boot overlay + scroll progress + 3D orb (no cubi) */
+    .boot{
+  position:fixed; inset:0;
+  z-index:300;
+  display:flex; align-items:center; justify-content:center;
+  background: transparent;
+}
+
+/* layer blur separato: questo è quello che “cancella la gomma” */
+.boot-blur{
+  position:absolute;
+  inset:0;
+  z-index:1;
+
+  /* blur + tinta (più evidente) */
+  -webkit-backdrop-filter: blur(40px) saturate(1.15) contrast(1.06);
+  backdrop-filter: blur(40px) saturate(1.15) contrast(1.06);
+  background: rgba(11,13,18,.18);
+  will-change: -webkit-mask-image, mask-image, opacity;
+  transform: translateZ(0);
+/* mask accumulata (settata via JS) */
+  --bootMask: linear-gradient(#000 0 0);
+  -webkit-mask-image: var(--bootMask);
+  mask-image: var(--bootMask);
+
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+
+}
+
+/* assicurati che card + bisciolina stiano sopra */
+.boot-canvas{ z-index:0; }
+.boot-card{ position:relative; z-index:2; }
+.boot-wipe{ position:absolute; inset:0; z-index:3; pointer-events:none; }
+.boot-canvas{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  display:block;
+  z-index:0;
+}
+
+/* blur spostato su .boot-blur */
+
+.boot-card{ position:relative; z-index:2; }
+.boot-wipe{ position:absolute; inset:0; z-index:3; pointer-events:none; opacity:0 !important; }
+
+    .boot.hide{
+      opacity:0;
+      pointer-events:none;
+      transition: opacity .38s var(--ease2);
+    }
+
+    /* wipe: cancella il boot con “scarabocchio” */
+    .boot.wipe .boot-card{
+      opacity:0;
+      transform: translateY(6px) scale(.99);
+      transition: opacity .22s var(--ease2), transform .22s var(--ease2);
+    }
+
+
+    #bootWipePath, .boot-wipe-ghost{
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      fill:none;
+    }
+    #bootWipePath{
+      stroke: rgba(255,252,242,.30);
+      stroke-width: 34;
+    }
+    .boot-wipe-ghost{
+      stroke: rgba(242,201,76,.18);
+      stroke-width: 24;
+      filter: blur(.25px);
+    }
+    .boot-card{
+      width:min(520px, calc(100vw - 32px));
+      border-radius: 22px;
+      border:1px solid rgba(255,252,242,.12);
+      background: rgba(15,21,34,.88);
+      box-shadow: var(--shadow);
+      padding: 16px;
+    }
+    .boot-top{
+      display:flex; align-items:center; justify-content:space-between;
+      gap:12px;
+    }
+    .boot-logo{
+      display:inline-flex; align-items:center; justify-content:center;
+      width:34px; height:34px;
+      border-radius: 12px;
+      border:1px solid rgba(242,201,76,.28);
+      background: rgba(242,201,76,.10);
+      color: var(--accent);
+      box-shadow: 0 0 0 10px rgba(242,201,76,.08);
+    }
+    .boot-title{
+      font-family: var(--mono);
+      font-weight: 900;
+      color: rgba(255,252,242,.78);
+      font-size: 12px;
+    }
+    .boot-bar{
+      margin-top:14px;
+      height:10px;
+      border-radius:999px;
+      border:1px solid var(--line2);
+      background: rgba(0,0,0,.20);
+      overflow:hidden;
+    }
+    .boot-bar i{
+      display:block;
+      height:100%;
+      width:40%;
+      border-radius:999px;
+      background: linear-gradient(90deg,
+        rgba(242,201,76,.20),
+        rgba(242,201,76,.95),
+        rgba(21,185,121,.55)
+      );
+      animation: bootbar 1.05s var(--ease) infinite;
+    }
+    @keyframes bootbar{
+      0%{ transform: translateX(-55%); }
+      100%{ transform: translateX(220%); }
+    }
+    .boot-lines{
+      margin-top:12px;
+      font-family: var(--mono);
+      font-size:12px;
+      line-height:1.6;
+      color: rgba(255,252,242,.70);
+    }
+    .boot-lines div::before{
+      content:"> ";
+      color: rgba(242,201,76,.92);
+    }
+
+    .scroll-progress{
+      position:absolute;
+      left:0; top:0;
+      height:2px;
+      width:0;
+      border-radius:999px;
+      background: linear-gradient(90deg, rgba(242,201,76,.95), rgba(21,185,121,.70));
+      box-shadow: 0 0 0 6px rgba(242,201,76,.06);
+    }
+
+    .orb-wrap{
+      position:absolute;
+      right:-70px;
+      top:64px;
+      width:min(520px, 56vw);
+      height:min(520px, 56vw);
+      pointer-events:none;
+      z-index:0;
+      opacity:.95;
+      filter: drop-shadow(0 22px 80px rgba(0,0,0,.55));
+    }
+    @media (max-width: 980px){
+      .orb-wrap{
+        right:-110px;
+        top:80px;
+        width:min(520px, 78vw);
+        height:min(520px, 78vw);
+        opacity:.75;
+      }
+    }
+    .orb{
+      position:absolute; inset:0;
+      border-radius:999px;
+      transform-style: preserve-3d;
+      transform: perspective(900px)
+        rotateX(var(--orbRx, 18deg))
+        rotateY(var(--orbRy, -22deg));
+    }
+    .orb::before{
+      content:"";
+      position:absolute; inset:0;
+      border-radius:inherit;
+      background:
+        radial-gradient(circle at 30% 25%, rgba(242,201,76,.22), transparent 45%),
+        radial-gradient(circle at 70% 75%, rgba(21,185,121,.16), transparent 46%),
+        radial-gradient(circle at 50% 50%, rgba(255,252,242,.07), transparent 55%);
+      border:1px solid rgba(255,252,242,.08);
+    }
+    .orb::after{
+      content:"";
+      position:absolute; inset:-2px;
+      border-radius:inherit;
+      background: conic-gradient(from 180deg,
+        rgba(242,201,76,.24),
+        rgba(255,252,242,.06),
+        rgba(21,185,121,.18),
+        rgba(255,252,242,.06),
+        rgba(242,201,76,.24)
+      );
+      filter: blur(18px);
+      opacity:.55;
+      transform: translateZ(-60px);
+    }
+    .orb-spin{
+      position:absolute; inset:0;
+      border-radius:inherit;
+      transform-style: preserve-3d;
+      animation: orbSpin 10s linear infinite;
+    }
+    @keyframes orbSpin{
+      to{ transform: rotateZ(360deg); }
+    }
+    .orb .ring{
+      position:absolute;
+      inset: 9%;
+      border-radius:999px;
+      border:1px solid rgba(255,252,242,.14);
+      transform-style: preserve-3d;
+    }
+    .orb .ring.v{ transform: rotateY(calc(var(--i) * 18deg)); }
+    .orb .ring.h{ transform: rotateX(calc(var(--i) * 18deg)); opacity:.55; }
+    .orb .spark{
+      position:absolute; inset:0;
+      border-radius:inherit;
+      background:
+        radial-gradient(4px 4px at 22% 32%, rgba(242,201,76,.95), transparent 60%),
+        radial-gradient(3px 3px at 76% 62%, rgba(21,185,121,.85), transparent 60%),
+        radial-gradient(2px 2px at 48% 78%, rgba(255,252,242,.75), transparent 60%);
+      mix-blend-mode: screen;
+      opacity:.9;
+      filter: blur(.2px);
+    }
+
+    /* ===== Ambient background layers ===== */
+    .bg-aurora{
+      position:fixed;
+      inset:-30%;
+      z-index:-3;
+      pointer-events:none;
+      background:
+        conic-gradient(from 140deg at 50% 50%,
+          rgba(242,201,76,.18),
+          rgba(255,252,242,.06),
+          rgba(21,185,121,.16),
+          rgba(255,252,242,.06),
+          rgba(242,201,76,.18)
+        );
+      filter: blur(70px) saturate(1.15);
+      opacity:.55;
+      transform-origin:center;
+      animation: auroraSpin 34s linear infinite;
+    }
+    @keyframes auroraSpin{ to{ transform: rotate(360deg); } }
+
+    .bg-grid{
+      position:fixed;
+      inset:0;
+      z-index:-2;
+      pointer-events:none;
+      background-image:
+        linear-gradient(rgba(255,252,242,.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,252,242,.06) 1px, transparent 1px);
+      background-size: 56px 56px;
+      opacity:.14;
+      mask-image: radial-gradient(circle at 50% 10%, #000 0 45%, transparent 78%);
+      -webkit-mask-image: radial-gradient(circle at 50% 10%, #000 0 45%, transparent 78%);
+      transform: translateZ(0);
+    }
+
+    .bg-dots{
+      position:fixed;
+      inset:0;
+      z-index:-1;
+      pointer-events:none;
+      background-image: radial-gradient(rgba(255,252,242,.16) 1px, transparent 1px);
+      background-size: 18px 18px;
+      opacity:.09;
+      mask-image: radial-gradient(circle at 50% 20%, #000 0 50%, transparent 82%);
+      -webkit-mask-image: radial-gradient(circle at 50% 20%, #000 0 50%, transparent 82%);
+      animation: dotsDrift 18s linear infinite;
+    }
+    @keyframes dotsDrift{
+      from{ transform: translate3d(0,0,0); }
+      to{ transform: translate3d(-24px, 18px, 0); }
+    }
+
+    /* usa già --mx/--my dal tuo pointer FX per “muovere” l'aurora vicino al mouse */
+    .bg-aurora{
+      background:
+        radial-gradient(900px 520px at var(--mx) var(--my), rgba(242,201,76,.18), transparent 60%),
+        radial-gradient(900px 520px at calc(100% - var(--mx)) calc(100% - var(--my)), rgba(21,185,121,.14), transparent 60%),
+        conic-gradient(from 140deg at 50% 50%,
+          rgba(242,201,76,.14),
+          rgba(255,252,242,.05),
+          rgba(21,185,121,.12),
+          rgba(255,252,242,.05),
+          rgba(242,201,76,.14)
+        );
+    }
+
+    /* ===== Card polish: gloss + micro-lift ===== */
+    .card{
+      position:relative;
+      overflow:hidden;
+    }
+    .card::after{
+      content:"";
+      position:absolute;
+      inset:-40%;
+      background: linear-gradient(120deg,
+        transparent 42%,
+        rgba(242,201,76,.10) 48%,
+        rgba(255,252,242,.06) 52%,
+        transparent 58%
+      );
+      transform: translateX(-36%) rotate(8deg);
+      opacity:0;
+      transition: opacity .18s var(--ease), transform .55s var(--ease2);
+      pointer-events:none;
+    }
+    .card:hover::after{
+      opacity:1;
+      transform: translateX(36%) rotate(8deg);
+    }
+
+    .card:hover{
+      transform: translateY(-2px);
+    }
+
+    /* ===== Card reveal (stagger) ===== */
+    [data-anim="1"]{
+      opacity:0;
+      transform: translateY(14px) scale(.992);
+      filter: saturate(.98);
+      transition:
+        opacity .55s var(--ease2),
+        transform .55s var(--ease2),
+        filter .55s var(--ease2);
+      will-change: opacity, transform;
+    }
+    [data-anim="1"].is-visible{
+      opacity:1;
+      transform: translateY(0) scale(1);
+      filter: saturate(1);
+      transition-delay: var(--d, 0ms);
+    }
+
+    /* ===== Premium intro reveal (scribble) ===== */
+    .reveal{
+      position:fixed;
+      inset:0;
+      z-index: 350;
+      pointer-events:none;
+      background:
+        radial-gradient(1000px 520px at 18% 0%, rgba(242,201,76,.10), transparent 58%),
+        radial-gradient(900px 520px at 92% 10%, rgba(255,252,242,.05), transparent 60%),
+        radial-gradient(900px 620px at 50% 120%, rgba(21,185,121,.08), transparent 60%),
+        var(--bg);
+      /* “foro” che rivela la pagina */
+      --rx: 50%;
+      --ry: 20%;
+      --rr: 0px;
+      -webkit-mask-image: radial-gradient(circle var(--rr) at var(--rx) var(--ry), transparent 0 62%, #000 64%);
+      mask-image: radial-gradient(circle var(--rr) at var(--rx) var(--ry), transparent 0 62%, #000 64%);
+      opacity:1;
+      transition: opacity .28s var(--ease2);
+    }
+    .reveal.done{ opacity:0; }
+
+    .reveal-scribble{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      opacity:.95;
+      filter: drop-shadow(0 18px 70px rgba(0,0,0,.55));
+    }
+    #revealPath{
+      stroke: rgba(242,201,76,.92);
+      stroke-width: 18;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      fill: none;
+      opacity: .92;
+    }
+
+    /* ===== Ambient background layers (apple-ish) ===== */
+    .bg-aurora{
+      position:fixed;
+      inset:-35%;
+      z-index:-3;
+      pointer-events:none;
+      background:
+        radial-gradient(900px 520px at var(--mx) var(--my), rgba(242,201,76,.14), transparent 60%),
+        radial-gradient(900px 520px at calc(100% - var(--mx)) calc(100% - var(--my)), rgba(21,185,121,.11), transparent 60%),
+        conic-gradient(from 140deg at 50% 50%,
+          rgba(242,201,76,.10),
+          rgba(255,252,242,.04),
+          rgba(21,185,121,.09),
+          rgba(255,252,242,.04),
+          rgba(242,201,76,.10)
+        );
+      filter: blur(70px) saturate(1.12);
+      opacity:.60;
+      transform-origin:center;
+      animation: auroraSpin 38s linear infinite;
+    }
+    @keyframes auroraSpin{ to{ transform: rotate(360deg); } }
+
+    .bg-grid{
+      position:fixed;
+      inset:0;
+      z-index:-2;
+      pointer-events:none;
+      background-image:
+        linear-gradient(rgba(255,252,242,.055) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,252,242,.055) 1px, transparent 1px);
+      background-size: 64px 64px;
+      opacity:.12;
+      mask-image: radial-gradient(circle at 50% 12%, #000 0 48%, transparent 78%);
+      -webkit-mask-image: radial-gradient(circle at 50% 12%, #000 0 48%, transparent 78%);
+      transform: translateZ(0);
+    }
+
+    .bg-dots{
+      position:fixed;
+      inset:0;
+      z-index:-1;
+      pointer-events:none;
+      background-image: radial-gradient(rgba(255,252,242,.16) 1px, transparent 1px);
+      background-size: 18px 18px;
+      opacity:.08;
+      mask-image: radial-gradient(circle at 50% 22%, #000 0 52%, transparent 82%);
+      -webkit-mask-image: radial-gradient(circle at 50% 22%, #000 0 52%, transparent 82%);
+      animation: dotsDrift 18s linear infinite;
+    }
+    @keyframes dotsDrift{
+      from{ transform: translate3d(0,0,0); }
+      to{ transform: translate3d(-26px, 18px, 0); }
+    }
+
+    .bg-vignette{
+      position:fixed;
+      inset:0;
+      z-index:-1;
+      pointer-events:none;
+      background:
+        radial-gradient(900px 520px at 50% 20%, rgba(0,0,0,0), rgba(0,0,0,.28) 70%, rgba(0,0,0,.52) 100%);
+      opacity:.85;
+    }
+
+    /* ===== Card premium motion ===== */
+    .card{ position:relative; overflow:hidden; }
+    .card::after{
+      content:"";
+      position:absolute;
+      inset:-40%;
+      background: linear-gradient(120deg,
+        transparent 42%,
+        rgba(255,252,242,.06) 48%,
+        rgba(242,201,76,.10) 52%,
+        transparent 58%
+      );
+      transform: translateX(-36%) rotate(8deg);
+      opacity:0;
+      transition: opacity .18s var(--ease), transform .55s var(--ease2);
+      pointer-events:none;
+    }
+    .card:hover::after{
+      opacity:1;
+      transform: translateX(36%) rotate(8deg);
+    }
+
+    /* entrance anim */
+    [data-anim="1"]{
+      opacity:0;
+      transform: translateY(14px) scale(.992);
+      filter: saturate(.98);
+      transition:
+        opacity .62s var(--ease2),
+        transform .62s var(--ease2),
+        filter .62s var(--ease2);
+      will-change: opacity, transform;
+    }
+    [data-anim="1"].is-visible{
+      opacity:1;
+      transform: translateY(0) scale(1);
+      filter: saturate(1);
+      transition-delay: var(--d, 0ms);
+    }
+
+    /* hover micro (pulito) */
+    .project:hover, .service:hover, .note:hover{
+      transform: translateY(-3px);
+      box-shadow: var(--shadow);
+      border-color: rgba(242,201,76,.16);
+    }
+
+    @media (prefers-reduced-motion: reduce){
+      .reveal{ display:none !important; }
+      [data-anim="1"]{ opacity:1 !important; transform:none !important; filter:none !important; }
+      .bg-aurora, .bg-dots{ animation:none !important; }
+    }
+
     /* nav */
     .nav{
       position:sticky; top:0; z-index:50;
@@ -599,54 +1105,241 @@
     .kpi b{display:block; font-size:12px; letter-spacing:.10em; text-transform:uppercase; color:rgba(255,252,242,.78)}
     .kpi span{display:block; margin-top:8px; color:rgba(255,252,242,.70); font-size:13px; line-height:1.55}
 
-    /* ===== Services carousel ===== */
-    .carousel{ position:relative; }
+        /* ===== Services carousel (App Store cards) ===== */
+    .carousel{
+      position:relative;
+      isolation:isolate;
+      --c-pad: 26px;
+      --c-radius: 30px;
+    }
+
     .carousel-viewport{
       overflow-x:auto;
       scroll-snap-type:x mandatory;
+      scroll-padding-inline: var(--c-pad);
       -webkit-overflow-scrolling: touch;
-      border-radius: 22px;
+      overscroll-behavior-x: contain;
+
+      border-radius: var(--c-radius);
+      border:1px solid rgba(255,252,242,.10);
+      background: rgba(15,21,34,.36);
+      -webkit-backdrop-filter: blur(14px);
+      backdrop-filter: blur(14px);
+
+      padding: 18px 0;
+      cursor: grab;
+      touch-action: pan-y;
     }
+    .carousel-viewport.dragging{
+      cursor: grabbing;
+      scroll-snap-type: none;
+    }
+
     .carousel-viewport::-webkit-scrollbar{ height: 0; }
     .carousel-viewport{ scrollbar-width: none; }
 
     .carousel-track{
       display:flex;
-      gap:14px;
-      padding: 2px;
+      gap:18px;
+      padding: 0 var(--c-pad);
+      align-items:stretch;
     }
+
     .service-slide{
-      scroll-snap-align: start;
-      flex: 0 0 100%;
+      flex: 0 0 86%;
+      scroll-snap-align: center;
+      scroll-snap-stop: always;
+
+      transform: scale(.94);
+      opacity: .88;
+      filter: saturate(.96);
+
+      transition: transform .40s var(--ease2), opacity .40s var(--ease2), filter .40s var(--ease2);
+      will-change: transform;
     }
+    .service-slide.is-active{
+      transform: scale(1);
+      opacity: 1;
+      filter: saturate(1.05);
+    }
+
     @media (min-width: 980px){
-      .service-slide{ flex-basis: calc(50% - 7px); }
+      .service-slide{ flex-basis: 44%; }
+    }
+    @media (min-width: 1260px){
+      .service-slide{ flex-basis: 36%; }
+    }
+
+    /* edge fade (peek) */
+    .carousel::before,
+    .carousel::after{
+      content:"";
+      position:absolute;
+      top:0; bottom:0;
+      width: 62px;
+      pointer-events:none;
+      z-index:2;
+    }
+    .carousel::before{
+      left:0;
+      background: linear-gradient(90deg, rgba(11,13,18,.96), rgba(11,13,18,0));
+      border-radius: var(--c-radius) 0 0 var(--c-radius);
+    }
+    .carousel::after{
+      right:0;
+      background: linear-gradient(270deg, rgba(11,13,18,.96), rgba(11,13,18,0));
+      border-radius: 0 var(--c-radius) var(--c-radius) 0;
     }
 
     .carousel-btn{
       position:absolute;
       top:50%;
       transform: translateY(-50%);
-      z-index: 2;
-      width:44px;
-      height:44px;
+      z-index: 3;
+
+      width:46px;
+      height:46px;
       border-radius:999px;
-      border:1px solid rgba(255,252,242,.18);
-      background: rgba(15,21,34,.82);
+
+      border:1px solid rgba(255,252,242,.12);
+      background: rgba(15,21,34,.50);
+      -webkit-backdrop-filter: blur(16px);
+      backdrop-filter: blur(16px);
+
       color: rgba(255,252,242,.92);
-      font-weight: 950;
+      font-weight: 700;
+      font-size: 28px;
+      line-height: 1;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+
+      box-shadow: 0 18px 55px rgba(0,0,0,.40);
       cursor:pointer;
-      box-shadow: 0 12px 34px rgba(0,0,0,.30);
+
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .22s var(--ease2), transform .22s var(--ease2), background .22s var(--ease2), border-color .22s var(--ease2);
     }
+
+    .carousel:hover .carousel-btn,
+    .carousel:focus-within .carousel-btn{
+      opacity: 1;
+      pointer-events:auto;
+    }
+
     .carousel-btn:hover{
-      border-color: rgba(242,201,76,.26);
-      background: rgba(16,26,43,.92);
+      border-color: rgba(242,201,76,.22);
+      background: rgba(16,26,43,.70);
+      transform: translateY(-50%) scale(1.04);
     }
-    #servicesPrev{ left:-6px; }
-    #servicesNext{ right:-6px; }
+
+    #servicesPrev{ left: 10px; }
+    #servicesNext{ right: 10px; }
+
+    /* su mobile: swipe + dots (niente frecce) */
     @media (max-width: 520px){
-      #servicesPrev{ left: 6px; }
-      #servicesNext{ right: 6px; }
+      .carousel-btn{ display:none; }
+      .carousel::before, .carousel::after{ width: 36px; }
+    }
+
+    .carousel-dots{
+      display:flex;
+      justify-content:center;
+      gap:8px;
+      padding-top: 12px;
+      user-select:none;
+    }
+    .carousel-dot{
+      width:7px;
+      height:7px;
+      border-radius:999px;
+      border:1px solid rgba(255,252,242,.12);
+      background: rgba(255,252,242,.18);
+      padding:0;
+      cursor:pointer;
+      transition: width .25s var(--ease2), background .25s var(--ease2), transform .25s var(--ease2), border-color .25s var(--ease2);
+    }
+    .carousel-dot[aria-current="true"]{
+      width:22px;
+      background: rgba(255,252,242,.74);
+      border-color: rgba(255,252,242,.22);
+    }
+
+    /* ===== Service card (Today / App Store) ===== */
+    .service{
+      padding:22px;
+      border-radius: 30px;
+      border:1px solid rgba(255,252,242,.12);
+      background: rgba(16,26,43,.56);
+      box-shadow: 0 26px 90px rgba(0,0,0,.46);
+      position:relative;
+      overflow:hidden;
+
+      min-height: 440px;
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+    }
+
+    .service::before{
+      content:"";
+      position:absolute; inset:-1px;
+      background:
+        radial-gradient(760px 360px at 20% 0%, rgba(242,201,76,.28), transparent 60%),
+        radial-gradient(720px 340px at 86% 18%, rgba(21,185,121,.18), transparent 62%),
+        radial-gradient(620px 320px at 50% 55%, rgba(255,252,242,.07), transparent 62%),
+        linear-gradient(180deg, rgba(255,252,242,.08) 0%, rgba(255,252,242,0) 52%, rgba(11,13,18,.80) 100%);
+      opacity:.95;
+      pointer-events:none;
+    }
+    .service > *{ position:relative; }
+
+    .service .project-top{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      align-items:flex-start;
+      flex-wrap:wrap;
+      margin-bottom:2px;
+    }
+    .service .project-top > div{ max-width: 34ch; }
+
+    .service h3{
+      margin: 8px 0 0;
+      font-size: clamp(22px, 2.4vw, 30px);
+      line-height:1.08;
+      letter-spacing:-.04em;
+    }
+
+    .service p{
+      margin:0;
+      color: rgba(255,252,242,.78);
+      line-height:1.78;
+      font-size:15px;
+    }
+
+    .service .kpi{
+      margin-top: 4px;
+      border:1px solid rgba(255,252,242,.10);
+      background: rgba(0,0,0,.20);
+      border-radius: 18px;
+      padding:14px;
+    }
+    .service .kpi b{ color: rgba(255,252,242,.82); }
+
+    .service-meta{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top: 2px;
+    }
+
+    .service .actions{
+      margin-top:auto;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
     }
 
     /* build notes */
@@ -819,17 +1512,33 @@
     .fab.hide{ display:none; }
 
     /* spotlight + cursor */
-    .spotlight{
+        .spotlight{
       position:fixed; inset:0;
       pointer-events:none;
       z-index: 5;
       background:
-        radial-gradient(520px circle at var(--mx) var(--my),
-          rgba(242,201,76,.14),
-          rgba(242,201,76,.06) 22%,
-          rgba(11,13,18,0) 55%);
+        radial-gradient(720px circle at var(--mx) var(--my),
+          rgba(242,201,76,.18),
+          rgba(242,201,76,.08) 22%,
+          rgba(11,13,18,0) 58%),
+        radial-gradient(680px circle at var(--mx2) var(--my2),
+          rgba(21,185,121,.12),
+          rgba(21,185,121,.06) 24%,
+          rgba(11,13,18,0) 62%),
+        radial-gradient(560px circle at var(--mx3) var(--my3),
+          rgba(255,252,242,.09),
+          rgba(255,252,242,.04) 26%,
+          rgba(11,13,18,0) 62%),
+        radial-gradient(900px 520px at 18% 0%, rgba(242,201,76,.08), transparent 60%),
+        radial-gradient(900px 520px at 92% 10%, rgba(255,252,242,.04), transparent 62%);
       mix-blend-mode: screen;
       opacity:.95;
+      filter: blur(.2px);
+      animation: spotPulse 4.8s ease-in-out infinite;
+    }
+    @keyframes spotPulse{
+      0%,100%{ opacity:.88; }
+      50%{ opacity:1; }
     }
 
     body, a, button, .btn, .project, [role='button'] { cursor: none; }
@@ -932,7 +1641,12 @@
       .spotlight{display:none}
       .cursor, .cursor-dot{display:none}
     }
-  </style>
+  /* Wipe: fade out progressivo dell'intero overlay mentre lo scarabocchio viene disegnato */
+.boot.wipe{
+  transition: opacity 1.2s cubic-bezier(.16,1,.3,1);
+}
+
+</style>
 
   <!-- Analytics (GA4) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
@@ -955,11 +1669,49 @@
 </head>
 
 <body>
+  <div id="boot" class="boot" aria-hidden="true">
+  <div id="bootBlur" class="boot-blur" aria-hidden="true"></div>
+  <canvas id="bootCanvas" class="boot-canvas" aria-hidden="true"></canvas>
+    <div class="boot-card" role="status" aria-live="polite" aria-label="Caricamento">
+      <div class="boot-top">
+        <span class="boot-logo" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="2" y="2" width="18" height="18" rx="6" stroke="currentColor" stroke-width="2"/>
+            <path d="M6.5 14.5L15.5 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <rect x="13.7" y="13.2" width="4" height="4" rx="1.6" fill="currentColor"/>
+          </svg>
+        </span>
+        <span class="boot-title">oakvx / boot</span>
+      </div>
+
+      <div class="boot-bar" aria-hidden="true"><i></i></div>
+      <div class="boot-lines" id="bootLines"></div>
+    </div>
+      <!-- wipe: “scarabocchio” che cancella il boot -->
+      <svg class="boot-wipe" id="bootWipeSvg" viewBox="0 0 1000 600" preserveAspectRatio="none" aria-hidden="true">
+  <defs>
+  </defs>
+        <!-- stroke principale -->
+        <path id="bootWipePath"
+          d="M30,170 C140,40 260,260 380,130 C520,-20 620,240 740,120 C860,10 930,130 980,60"
+          fill="none" />
+        <!-- ghost stroke (spessore/realismo) -->
+        <path class="boot-wipe-ghost"
+          d="M40,190 C170,60 260,280 400,150 C520,20 640,250 770,140 C880,60 940,150 990,90"
+          fill="none" />
+      </svg>
+  </div>
+    <div class="bg-aurora" aria-hidden="true"></div>
+  <div class="bg-grid" aria-hidden="true"></div>
+  <div class="bg-dots" aria-hidden="true"></div>
+  <div class="bg-vignette" aria-hidden="true"></div>
+
   <div class="spotlight" aria-hidden="true"></div>
   <div class="cursor" id="cursor" aria-hidden="true"></div>
   <div class="cursor-dot" id="cursorDot" aria-hidden="true"></div>
 
   <div class="nav" id="nav">
+    <div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
     <div class="container nav-inner">
       <a class="brand" href="#top" aria-label="Home">
         <span class="brand-logo" aria-hidden="true">
@@ -988,6 +1740,34 @@
   </div>
 
   <header id="top">
+    <div class="orb-wrap" aria-hidden="true">
+      <div class="orb" id="orb">
+        <div class="orb-spin">
+          <!-- vertical rings -->
+          <span class="ring v" style="--i:0"></span>
+          <span class="ring v" style="--i:1"></span>
+          <span class="ring v" style="--i:2"></span>
+          <span class="ring v" style="--i:3"></span>
+          <span class="ring v" style="--i:4"></span>
+          <span class="ring v" style="--i:5"></span>
+          <span class="ring v" style="--i:6"></span>
+          <span class="ring v" style="--i:7"></span>
+          <span class="ring v" style="--i:8"></span>
+          <span class="ring v" style="--i:9"></span>
+
+          <!-- horizontal rings -->
+          <span class="ring h" style="--i:0"></span>
+          <span class="ring h" style="--i:1"></span>
+          <span class="ring h" style="--i:2"></span>
+          <span class="ring h" style="--i:3"></span>
+          <span class="ring h" style="--i:4"></span>
+          <span class="ring h" style="--i:5"></span>
+
+          <span class="spark"></span>
+        </div>
+      </div>
+    </div>
+
     <div class="container hero">
       <div data-reveal>
         <div class="pill">Node.js • Product engineering</div>
@@ -1069,7 +1849,7 @@
       </div>
 
       <div class="carousel" aria-label="Carosello servizi">
-        <button class="carousel-btn" id="servicesPrev" type="button" aria-label="Servizio precedente">⬅️</button>
+        <button class="carousel-btn" id="servicesPrev" type="button" aria-label="Servizio precedente">‹</button>
 
         <div class="carousel-viewport" id="servicesCarousel" tabindex="0" role="region" aria-roledescription="carousel" aria-label="Servizi">
           <div class="carousel-track">
@@ -1192,8 +1972,10 @@
           </div>
         </div>
 
-        <button class="carousel-btn" id="servicesNext" type="button" aria-label="Servizio successivo">➡️</button>
+        <button class="carousel-btn" id="servicesNext" type="button" aria-label="Servizio successivo">›</button>
       </div>
+
+      <div class="carousel-dots" id="servicesDots" aria-label="Pagine servizi"></div>
     </section>
 
     <!-- PROJECTS -->
@@ -1431,6 +2213,378 @@
         const $$ = (s, r=document) => Array.from(r.querySelectorAll(s));
         const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
 
+        // intro reveal: scribble + hole wipe (premium)
+        (function initIntroReveal(){
+          const reveal = document.getElementById("reveal");
+          const svg = document.getElementById("revealSvg");
+          const path = document.getElementById("revealPath");
+          if (!reveal || !svg || !path) return;
+
+          // se reduce motion o già visto (session), skippa
+          if (reduceMotion || sessionStorage.getItem("introDone") === "1"){
+            reveal.remove();
+            return;
+          }
+
+          reveal.removeAttribute("aria-hidden");
+
+          const vb = svg.viewBox.baseVal;
+          const len = path.getTotalLength();
+
+          // stroke draw
+          path.style.strokeDasharray = String(len);
+          path.style.strokeDashoffset = String(len);
+
+          const D = 980; // ms (secco, apple-ish)
+          const t0 = performance.now();
+
+          const easeOut = (t) => 1 - Math.pow(1 - t, 4);
+
+          function setHole(xpx, ypx, rpx){
+            reveal.style.setProperty("--rx", xpx.toFixed(1) + "px");
+            reveal.style.setProperty("--ry", ypx.toFixed(1) + "px");
+            reveal.style.setProperty("--rr", rpx.toFixed(1) + "px");
+          }
+
+          function tick(now){
+            const t = clamp((now - t0) / D, 0, 1);
+            const e = easeOut(t);
+
+            // punto lungo il path
+            const p = path.getPointAtLength(len * e);
+            const rect = svg.getBoundingClientRect();
+
+            // mappa coordinate svg -> px viewport
+            const x = rect.left + (p.x / vb.width) * rect.width;
+            const y = rect.top  + (p.y / vb.height) * rect.height;
+
+            // raggio cresce fino a “spaccare” l’overlay
+            const r = 90 + e * Math.max(window.innerWidth, window.innerHeight) * 1.25;
+
+            setHole(x, y, r);
+
+            // disegna lo scarabocchio
+            path.style.strokeDashoffset = String(len * (1 - e));
+
+            if (t < 1){
+              requestAnimationFrame(tick);
+            } else {
+              // chiudi: overlay via
+              sessionStorage.setItem("introDone", "1");
+              reveal.classList.add("done");
+              setTimeout(() => reveal.remove(), 420);
+            }
+          }
+
+          requestAnimationFrame(tick);
+        })();
+
+        // boot overlay
+        (function initBoot(){
+          const boot = document.getElementById("boot");
+          if (!boot) return;
+
+          const linesEl = document.getElementById("bootLines");
+          const lines = [
+            "init: ui",
+            "init: motion guards",
+            "init: fonts",
+            "init: interactions",
+            "ready"
+          ];
+
+          boot.removeAttribute("aria-hidden");
+
+          let i = 0;
+          (function writeLine(){
+            if (!linesEl) return;
+            if (i >= lines.length) return;
+            const div = document.createElement("div");
+            div.textContent = lines[i++];
+            linesEl.appendChild(div);
+            setTimeout(writeLine, 130);
+          })();
+
+          const MIN = 650;
+          const start = performance.now();
+
+          function done(){
+            const elapsed = performance.now() - start;
+            const wait = Math.max(0, MIN - elapsed);
+
+            setTimeout(() => {
+              // fallback: se motion ridotta, niente effetti
+              if (reduceMotion){
+                boot.classList.add("hide");
+                setTimeout(() => boot.remove(), 520);
+                return;
+              }
+
+              const svg = document.getElementById("bootWipeSvg");
+              const path = document.getElementById("bootWipePath");
+              const ghost = svg ? svg.querySelector(".boot-wipe-ghost") : null;
+
+              if (!svg || !path){
+                boot.classList.add("hide");
+                setTimeout(() => boot.remove(), 520);
+                return;
+              }
+
+              boot.classList.add("wipe");
+
+              const blur = document.getElementById("bootBlur");
+              if (!blur){
+                boot.classList.add("hide");
+                setTimeout(() => boot.remove(), 520);
+                return;
+              }
+
+
+              if (!svg || !path){
+                boot.classList.add("hide");
+                setTimeout(() => boot.remove(), 520);
+                return;
+              }
+
+              // failsafe
+              setTimeout(() => boot?.remove?.(), 3200);
+
+              // === Path FULL-SCREEN (generato SOLO quando parte il wipe) ===
+              // viewBox fisso ma path “overscan” per attraversare tutto il viewport
+              const W = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0), H = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0);
+              svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+
+              const pad = 140; // overscan fuori schermo
+              const ys = [0.02, 0.16, 0.30, 0.44, 0.58, 0.72, 0.86, 0.98];
+              const pts = ys.map((yf, i) => {
+                const x = (i % 2 === 0) ? (-pad) : (W + pad);
+                return `${x},${H * yf}`;
+              });
+              const dMain = `M ${pts[0]} ` + pts.slice(1).map(p => `L ${p}`).join(" ");
+
+              path.setAttribute("d", dMain);
+
+              if (ghost){
+                const dGhost = [
+                  `M ${-pad+20},${H*0.12}`,
+                  `L ${W+pad-10},${H*0.28}`,
+                  `L ${-pad+30},${H*0.44}`,
+                  `L ${W+pad-20},${H*0.60}`,
+                  `L ${-pad+35},${H*0.76}`,
+                  `L ${W+pad-30},${H*0.94}`
+                ].join(" ");
+                ghost.setAttribute("d", dGhost);
+              }
+
+              const vb = svg.viewBox.baseVal;
+              const len = path.getTotalLength();
+
+              // stroke visivi (bisciolina)
+              path.style.strokeDasharray = String(len);
+              path.style.strokeDashoffset = String(len);
+
+              let glen = 0;
+              if (ghost){
+                glen = ghost.getTotalLength();
+                ghost.style.strokeDasharray = String(glen);
+                ghost.style.strokeDashoffset = String(glen);
+              }
+
+              const rect = () => svg.getBoundingClientRect();
+              const holes = [];
+
+              // gomma più piccola (transizione più evidente)
+              const ERASER_PX = Math.max(70, Math.round(Math.min(window.innerWidth, window.innerHeight) * 0.14));
+
+              // raggio "stampata" della mask: include feather per un blur più evidente
+              // transizione più visibile: buco pieno più piccolo, sfumatura più ampia
+              const MASK_R  = Math.round(ERASER_PX * 1.45);
+              const HARD_R  = Math.round(ERASER_PX * 0.72);  // buco pieno (più piccolo)
+              const SOFT_R1 = Math.round(ERASER_PX * 0.95);  // inizio feather
+              const SOFT_R2 = Math.round(ERASER_PX * 1.18);  // feather più scuro
+
+              // distanza tra stampate lungo il segmento (troppo alta = "buchi")
+              const STEP_PX = Math.max(10, Math.round(ERASER_PX * 0.45));
+
+              const FINAL_R = Math.max(window.innerWidth, window.innerHeight) * 1.35;
+
+              let lastX = null, lastY = null;
+              let prevX = null, prevY = null;
+
+              function pushHole(x, y){
+                x = Math.round(x);
+                y = Math.round(y);
+
+                if (lastX !== null){
+                  const dx = x - lastX, dy = y - lastY;
+                  if ((dx*dx + dy*dy) < (STEP_PX * STEP_PX)) return;
+                }
+
+                lastX = x; lastY = y;
+                holes.push({ x, y });
+
+                // safety: evita liste infinite se qualcosa va storto
+                if (holes.length > 900) holes.splice(0, holes.length - 900);
+              }
+
+              function stampTo(x, y){
+                if (prevX === null){
+                  prevX = x; prevY = y;
+                  pushHole(x, y);
+                  return;
+                }
+
+                const dx = x - prevX, dy = y - prevY;
+                const dist = Math.hypot(dx, dy);
+
+                if (dist <= 0.001){
+                  pushHole(x, y);
+                  return;
+                }
+
+                // interpola: niente gap anche se il punto "salta" (frame drop / path veloce)
+                const steps = Math.ceil(dist / (STEP_PX * 0.9));
+                for (let i = 1; i <= steps; i++){
+                  const t = i / steps;
+                  pushHole(prevX + dx * t, prevY + dy * t);
+                }
+
+                prevX = x; prevY = y;
+              }
+
+              function setMaskComposite(layerCount){
+                const n = Math.max(0, layerCount - 1);
+
+                // per 1 solo layer non serve compositing
+                if (n === 0){
+                  blur.style.webkitMaskComposite = "source-over";
+                  blur.style.maskComposite = "add";
+                  return;
+                }
+
+                // IMPORTANTISSIMO: lista lunga N-1 (Chromium/WebKit)
+                blur.style.webkitMaskComposite = Array(n).fill("source-in").join(", ");
+                blur.style.maskComposite = Array(n).fill("intersect").join(", ");
+              }
+
+              function buildMask(extraFinal = false){
+                const base = "linear-gradient(#000 0 0)";
+
+                // stop più “grassi” = meno artefatti / meno micro-buchi
+                const grads = holes.map(h =>
+                  `radial-gradient(circle ${MASK_R}px at ${h.x}px ${h.y}px, transparent 0 ${HARD_R}px, rgba(0,0,0,.25) ${SOFT_R1}px, rgba(0,0,0,.85) ${SOFT_R2}px, #000 ${MASK_R}px)`
+                );
+
+                if (extraFinal){
+                  // finale: cerchio enorme (meglio centrato sotto, ma qui lasciamo il tuo lastX/lastY)
+                  grads.push(
+                    `radial-gradient(circle ${Math.round(FINAL_R)}px at ${Math.round(lastX ?? window.innerWidth/2)}px ${Math.round(lastY ?? window.innerHeight/2)}px, transparent 0 78%, rgba(0,0,0,.25) 86%, rgba(0,0,0,.85) 93%, #000 100%)`
+                  );
+                }
+
+                const layerCount = 1 + grads.length;
+                setMaskComposite(layerCount);
+
+                return [base, ...grads].join(",");
+              }
+
+              // reset mask: tutto blur visibile
+              blur.style.setProperty("--bootMask", "linear-gradient(#000 0 0)");
+
+              const D = 1350;
+              const t0 = performance.now();
+              const easeOut = (t) => 1 - Math.pow(1 - t, 4);
+
+              function tick(now){
+                const t = clamp((now - t0) / D, 0, 1);
+                const e = easeOut(t);
+
+                // punto sul path
+                const p = path.getPointAtLength(len * e);
+                const rc = rect();
+
+                // SVG -> viewport px
+                const x = rc.left + (p.x / vb.width) * rc.width;
+                const y = rc.top  + (p.y / vb.height) * rc.height;
+
+                // accumula scia gomma
+                stampTo(x, y);
+                blur.style.setProperty("--bootMask", buildMask(false));
+
+                // disegna la bisciolina (solo decorativa)
+                path.style.strokeDashoffset = String(len * (1 - e));
+                if (ghost) ghost.style.strokeDashoffset = String(glen * (1 - e));
+
+                if (t < 1){
+                  requestAnimationFrame(tick);
+                } else {
+                  // alla fine apri tutto + rimuovi overlay
+                  // 1) accumula finale
+                  blur.style.setProperty("--bootMask", buildMask(true));
+
+                  // 2) kill-switch: togli blur totalmente (anche se mask fa la matta su un device)
+                  blur.style.webkitMaskImage = "none";
+                  blur.style.maskImage = "none";
+                  blur.style.opacity = "0";
+
+                  boot.classList.add("hide");
+                  setTimeout(() => boot.remove(), 420);
+                }
+              }
+
+              requestAnimationFrame(tick);
+
+
+
+            }, wait);
+          }
+
+          Promise.allSettled([
+            (document.fonts && document.fonts.ready) ? document.fonts.ready : Promise.resolve(),
+            new Promise(res => window.addEventListener("load", res, { once:true }))
+          ]).then(done);
+        })();
+
+        // scroll progress
+        (function initScrollProgress(){
+          const bar = document.getElementById("scrollProgress");
+          if (!bar) return;
+
+          function update(){
+            const doc = document.documentElement;
+            const max = (doc.scrollHeight - doc.clientHeight) || 1;
+            const p = (window.scrollY || 0) / max;
+            bar.style.width = (p * 100).toFixed(2) + "%";
+          }
+
+          window.addEventListener("scroll", update, { passive:true });
+          window.addEventListener("resize", update);
+          update();
+        })();
+
+        // orb pointer parallax
+        (function initOrb(){
+          if (reduceMotion) return;
+
+          const orb = document.getElementById("orb");
+          if (!orb) return;
+
+          let rx = 18, ry = -22;
+          const set = () => {
+            orb.style.setProperty("--orbRx", rx.toFixed(2) + "deg");
+            orb.style.setProperty("--orbRy", ry.toFixed(2) + "deg");
+          };
+          set();
+
+          window.addEventListener("pointermove", (e) => {
+            const x = (e.clientX / window.innerWidth) * 2 - 1;
+            const y = (e.clientY / window.innerHeight) * 2 - 1;
+            rx = 16 + (-y) * 6;
+            ry = -22 + (x) * 10;
+            set();
+          }, { passive:true });
+        })();
+
         // toast
         const toastEl = $("#toast");
         let toastT = null;
@@ -1466,6 +2620,44 @@
             }
           }, { threshold: 0.12 });
           $$("[data-reveal]").forEach(el => io.observe(el));
+        })();
+        // card reveal gestito più sotto (versione estesa)
+
+        // card reveal (projects/services/notes/contact) + stagger
+        (function initCardReveal(){
+          const els = $$(".project, .service, .note, .contact, .hero-card, .selling");
+          if (!els.length) return;
+
+          els.forEach(el => el.setAttribute("data-anim","1"));
+
+          if (reduceMotion){
+            els.forEach(el => el.classList.add("is-visible"));
+            return;
+          }
+
+          const io = new IntersectionObserver((entries) => {
+            for (const e of entries){
+              if (!e.isIntersecting) continue;
+
+              const el = e.target;
+
+              const group =
+                el.closest("#projectsGrid") ||
+                el.closest(".carousel-track") ||
+                el.closest("#notes .grid") ||
+                el.closest("#contact .grid") ||
+                el.parentElement;
+
+              const siblings = group ? Array.from(group.querySelectorAll("[data-anim='1']")) : [];
+              const idx = Math.max(0, siblings.indexOf(el));
+
+              el.style.setProperty("--d", (idx * 70) + "ms");
+              el.classList.add("is-visible");
+              io.unobserve(el);
+            }
+          }, { threshold: 0.14 });
+
+          els.forEach(el => io.observe(el));
         })();
 
         // scrollspy
@@ -1521,6 +2713,12 @@
           function setVars(){
             root.style.setProperty("--mx", mx + "px");
             root.style.setProperty("--my", my + "px");
+
+            // extra spotlights (offset dal puntatore)
+            root.style.setProperty("--mx2", (mx + 220) + "px");
+            root.style.setProperty("--my2", (my + 140) + "px");
+            root.style.setProperty("--mx3", (mx - 260) + "px");
+            root.style.setProperty("--my3", (my - 180) + "px");
           }
 
           window.addEventListener("pointermove", (e) => {
@@ -1623,7 +2821,7 @@
           chips.forEach(c => c.addEventListener("click", () => setActive(c.dataset.filter)));
         })();
 
-        // services carousel controls
+                // services carousel controls (Apple-ish)
         (function initServicesCarousel(){
           const viewport = document.getElementById("servicesCarousel");
           const prev = document.getElementById("servicesPrev");
@@ -1633,33 +2831,81 @@
           const track = viewport.querySelector(".carousel-track");
           if (!track) return;
 
+          const dotsWrap = document.getElementById("servicesDots");
           const slides = () => Array.from(track.querySelectorAll(".service-slide"));
 
           const nearestIndex = () => {
             const ss = slides();
             if (!ss.length) return 0;
-            const x = viewport.scrollLeft + viewport.clientWidth / 2;
 
+            const x = viewport.scrollLeft + viewport.clientWidth / 2;
             let best = 0;
             let bestDist = Infinity;
+
             ss.forEach((s, i) => {
               const center = s.offsetLeft + s.offsetWidth / 2;
               const d = Math.abs(center - x);
               if (d < bestDist) { bestDist = d; best = i; }
             });
+
             return best;
+          };
+
+          const scrollLeftFor = (el) => {
+            const x = el.offsetLeft - (viewport.clientWidth - el.offsetWidth) / 2;
+            return Math.max(0, x);
+          };
+
+          const setActive = (idx) => {
+            const ss = slides();
+            ss.forEach((s, i) => s.classList.toggle("is-active", i === idx));
+
+            if (dotsWrap){
+              const dots = Array.from(dotsWrap.querySelectorAll(".carousel-dot"));
+              dots.forEach((d, i) => d.setAttribute("aria-current", i === idx ? "true" : "false"));
+            }
           };
 
           const scrollToIndex = (i) => {
             const ss = slides();
             if (!ss.length) return;
+
             const n = ss.length;
             const idx = ((i % n) + n) % n;
+
             viewport.scrollTo({
-              left: ss[idx].offsetLeft,
+              left: scrollLeftFor(ss[idx]),
               behavior: reduceMotion ? "auto" : "smooth"
             });
+
+            setActive(idx);
           };
+
+          const buildDots = () => {
+            if (!dotsWrap) return;
+            const ss = slides();
+            dotsWrap.innerHTML = "";
+            ss.forEach((_, i) => {
+              const b = document.createElement("button");
+              b.type = "button";
+              b.className = "carousel-dot";
+              b.setAttribute("aria-label", `Vai al servizio ${i + 1}`);
+              b.addEventListener("click", () => scrollToIndex(i));
+              dotsWrap.appendChild(b);
+            });
+          };
+
+          buildDots();
+
+          // sync active on scroll (raf-throttled)
+          let raf = 0;
+          const sync = () => setActive(nearestIndex());
+          const onScroll = () => {
+            if (raf) return;
+            raf = requestAnimationFrame(() => { raf = 0; sync(); });
+          };
+          viewport.addEventListener("scroll", onScroll, { passive:true });
+          window.addEventListener("resize", () => { buildDots(); sync(); }, { passive:true });
 
           prev.addEventListener("click", () => scrollToIndex(nearestIndex() - 1));
           next.addEventListener("click", () => scrollToIndex(nearestIndex() + 1));
@@ -1668,6 +2914,49 @@
             if (e.key === "ArrowLeft") { e.preventDefault(); scrollToIndex(nearestIndex() - 1); }
             if (e.key === "ArrowRight") { e.preventDefault(); scrollToIndex(nearestIndex() + 1); }
           });
+
+          // drag-to-scroll (desktop "swipe" style)
+          let dragging = false;
+          let startX = 0;
+          let startLeft = 0;
+          let pid = null;
+
+          viewport.addEventListener("pointerdown", (e) => {
+            if (e.button !== 0) return;
+            if (e.target.closest("a,button,input,textarea,select,label")) return;
+
+            dragging = true;
+            pid = e.pointerId;
+            startX = e.clientX;
+            startLeft = viewport.scrollLeft;
+
+            viewport.classList.add("dragging");
+            try { viewport.setPointerCapture(pid); } catch (_) {}
+          });
+
+          viewport.addEventListener("pointermove", (e) => {
+            if (!dragging) return;
+            const dx = e.clientX - startX;
+            viewport.scrollLeft = startLeft - dx;
+          });
+
+          const endDrag = () => {
+            if (!dragging) return;
+            dragging = false;
+            viewport.classList.remove("dragging");
+            try { if (pid !== null) viewport.releasePointerCapture(pid); } catch (_) {}
+            pid = null;
+
+            // snap to nearest card
+            if (reduceMotion) sync();
+            else scrollToIndex(nearestIndex());
+          };
+
+          viewport.addEventListener("pointerup", endDrag);
+          viewport.addEventListener("pointercancel", endDrag);
+
+          // init
+          sync();
         })();
 
         // focus trap helper
