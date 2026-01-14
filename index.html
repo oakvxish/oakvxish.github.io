@@ -674,16 +674,21 @@ Retrieved 2026-01-14, License - CC BY-SA 3.0
       letter-spacing:-.03em;
     }
     .brand-logo{
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      width:26px; height:26px;
-      border-radius:8px;
-      color: var(--accent);
-      background: rgba(242,201,76,.12);
-      border: 1px solid rgba(242,201,76,.22);
-      box-shadow: 0 0 0 6px rgba(242,201,76,.10);
-    }
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+
+  width:20px;
+  height:20px;
+  border-radius:7px;
+
+  color: var(--accent);
+  background: rgba(242,201,76,.10);
+  border: 1px solid rgba(242,201,76,.18);
+  box-shadow: 0 0 0 5px rgba(242,201,76,.08);
+
+  overflow:hidden; /* importantissimo per img */
+}
     .links{
       display:flex; gap:6px; flex-wrap:wrap; align-items:center;
     }
@@ -1722,7 +1727,8 @@ Retrieved 2026-01-14, License - CC BY-SA 3.0
     <div class="container nav-inner">
       <a class="brand" href="#top" aria-label="Home">
         <span class="brand-logo" aria-hidden="true">
-          <img src="./logo.png" alt="logo!">
+          <img src="./logo.png" alt="oakvx logo" width="14" height="14" style="display:block; object-fit:contain;">
+
         </span>
         oakvx
       </a>
