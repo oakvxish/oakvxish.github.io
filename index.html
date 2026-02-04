@@ -1354,6 +1354,28 @@ Retrieved 2026-01-14, License - CC BY-SA 3.0
       flex-wrap:wrap;
     }
 
+    /* updates (GitHub) */
+    .repo{
+      grid-column: span 6;
+      padding: var(--card-pad);
+      border-radius: var(--radius);
+    }
+    .repo h4{ margin:0 0 8px; letter-spacing:-.01em; font-size:16px; }
+    .repo p{ margin:0; color: rgba(255,252,242,.74); line-height:1.75; }
+    .repo-meta{
+      display:flex; gap:10px; flex-wrap:wrap;
+      margin-top:12px;
+      color: rgba(255,252,242,.66);
+      font-family: var(--mono);
+      font-size:12px;
+    }
+    .repo a{ text-decoration:none; }
+    .repo a:hover{ text-decoration:underline; }
+
+    @media (max-width: 980px){
+      .repo{ grid-column: span 12; }
+    }
+
     /* build notes */
     .note{grid-column: span 4; padding:16px}
     .note h4{ margin:0 0 8px; letter-spacing:-.01em; font-size:16px; }
@@ -1920,12 +1942,12 @@ Retrieved 2026-01-14, License - CC BY-SA 3.0
 
       <aside class="card hero-card" aria-label="Sintesi" data-reveal>
         <div class="kv"><b>Anno</b><span>2025</span></div>
-        <div class="kv"><b>synk</b><span>in sviluppo</span></div>
+        <div class="kv"><b>synk</b><span>rilasciato</span></div>
         <div class="kv"><b>Δash</b><span>rilasciato</span></div>
         <div class="kv"><b>Focus</b><span>automazione + affidabilità</span></div>
 
         <div class="meta-row" aria-label="Stato">
-          <span class="pill dev">synk: in sviluppo</span>
+          <span class="pill ok">synk: rilasciato</span>
           <span class="pill ok">Δash: rilasciato</span>
         </div>
 
@@ -2108,7 +2130,7 @@ Retrieved 2026-01-14, License - CC BY-SA 3.0
             <div class="project-left">
               <div class="project-top">
                 <div>
-                  <span class="pill dev">in sviluppo</span>
+                  <span class="pill ok">rilasciato</span>
                   <h3>synk — assistente operativo in chat (Node.js)</h3>
                 </div>
                 <span class="pill">WhatsApp + Calendar</span>
@@ -2202,6 +2224,19 @@ Retrieved 2026-01-14, License - CC BY-SA 3.0
       </div>
     </section>
 
+    <section id="updates" data-reveal>
+      <div class="section-head">
+        <h2>Ultimi aggiornamenti</h2>
+        <p class="hint">Feed live da GitHub (client-side) con cache locale: sempre attuale, senza tracking.</p>
+      </div>
+
+      <div class="grid" id="updatesGrid" aria-label="Aggiornamenti da GitHub">
+        <div class="card" style="grid-column: span 12; padding:16px">
+          <p class="hint" style="max-width:none">Caricamento aggiornamenti…</p>
+        </div>
+      </div>
+    </section>
+
     <section id="focus" data-reveal>
       <div class="section-head">
         <h2>2025</h2>
@@ -2290,7 +2325,7 @@ Retrieved 2026-01-14, License - CC BY-SA 3.0
   <div class="palette" id="palette" aria-hidden="true">
     <div class="palette-box" role="dialog" aria-modal="true" aria-label="Command palette">
       <div class="palette-head">
-        <input id="paletteInput" placeholder="Cerca: progetti, contatti, copia email…" autocomplete="off" />
+        <input id="paletteInput" aria-label="Cerca comandi" placeholder="Cerca: progetti, contatti, copia email…" autocomplete="off" />
         <span class="kbd">Esc</span>
       </div>
       <div class="palette-list" id="paletteList"></div>
@@ -3068,6 +3103,95 @@ Retrieved 2026-01-14, License - CC BY-SA 3.0
           sync();
         })();
 
+        // updates: GitHub feed (cache + fallback)
+        (function initGitHubUpdates(){
+          const grid = document.getElementById("updatesGrid");
+          if (!grid) return;
+
+          const USER = "oakvx";
+          const PER_PAGE = 6;
+          const KEY = "gh_repos_cache_v1";
+          const TTL = 60 * 60 * 1000; // 1h
+
+          const escapeHtml = (s="") =>
+            String(s).replace(/[&<>"']/g, m => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m]));
+
+          function render(repos){
+            if (!Array.isArray(repos) || repos.length === 0){
+              grid.innerHTML = `
+                <div class="card" style="grid-column: span 12; padding:16px">
+                  <p class="hint" style="max-width:none">Nessun aggiornamento disponibile al momento.</p>
+                </div>`;
+              return;
+            }
+
+            grid.innerHTML = repos.map(r => {
+              const name = escapeHtml(r.name || "repo");
+              const desc = escapeHtml(r.description || "—");
+              const url  = escapeHtml(r.html_url || "#");
+              const lang = escapeHtml(r.language || "n/a");
+              const stars = Number(r.stargazers_count || 0);
+              const pushed = r.pushed_at ? new Date(r.pushed_at) : null;
+              const pushedIt = pushed ? pushed.toLocaleDateString("it-IT", { year:"numeric", month:"short", day:"2-digit" }) : "—";
+
+              return `
+                <article class="card repo" aria-label="Repository ${name}">
+                  <h4><a href="${url}" target="_blank" rel="noopener noreferrer">${name}</a></h4>
+                  <p>${desc}</p>
+                  <div class="repo-meta">
+                    <span>lang: ${lang}</span>
+                    <span>★ ${stars}</span>
+                    <span>push: ${pushedIt}</span>
+                  </div>
+                </article>
+              `;
+            }).join("");
+          }
+
+          // cache read
+          try{
+            const raw = localStorage.getItem(KEY);
+            if (raw){
+              const cached = JSON.parse(raw);
+              if (cached && cached.t && (Date.now() - cached.t) < TTL && Array.isArray(cached.data)){
+                render(cached.data);
+              }
+            }
+          }catch(_){}
+
+          // network fetch (con timeout)
+          const ctrl = new AbortController();
+          const to = setTimeout(() => ctrl.abort(), 4500);
+
+          fetch(`https://api.github.com/users/${encodeURIComponent(USER)}/repos?sort=updated&per_page=${PER_PAGE}`, {
+            signal: ctrl.signal,
+            headers: { "Accept": "application/vnd.github+json" }
+          })
+          .then(r => r.ok ? r.json() : Promise.reject(new Error("GitHub HTTP " + r.status)))
+          .then(data => {
+            // filtra fork e roba “rumorosa” se vuoi
+            const repos = (Array.isArray(data) ? data : [])
+              .filter(x => x && !x.fork)
+              .slice(0, PER_PAGE);
+
+            render(repos);
+
+            try{
+              localStorage.setItem(KEY, JSON.stringify({ t: Date.now(), data: repos }));
+            }catch(_){}
+          })
+          .catch(() => {
+            // se cache c'era, ok; altrimenti fallback UI
+            if (!grid.querySelector(".repo")){
+              grid.innerHTML = `
+                <div class="card" style="grid-column: span 12; padding:16px">
+                  <p class="hint" style="max-width:none">Aggiornamenti non disponibili (offline o rate limit). Riprova più tardi.</p>
+                </div>`;
+            }
+          })
+          .finally(() => clearTimeout(to));
+        })();
+
         // focus trap helper
         function trapFocus(container){
           const sel = [
@@ -3098,7 +3222,7 @@ Retrieved 2026-01-14, License - CC BY-SA 3.0
         // PROJECT DATA (schede modal)
         const PROJECTS = {
           synk: {
-            pill: { cls: "pill dev", text: "in sviluppo • 2025" },
+            pill: { cls: "pill ok", text: "rilasciato • 2026" },
             title: "synk — assistente operativo in chat (Node.js)",
             problem:
               "Prenotazioni in chat = caos: orari non aggiornati, doppie richieste, utenti che cambiano idea a metà e integrazioni esterne che ogni tanto non rispondono.",
