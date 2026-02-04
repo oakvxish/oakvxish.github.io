@@ -10,7 +10,7 @@
 
 | Progetto | Status | Descrizione |
 |----------|--------|-------------|
-| **synk** | In sviluppo | Assistente operativo WhatsApp: gestione appuntamenti con calendario, slot temporanei e follow-up automatici |
+| **synk** | Rilasciato (beta) | Assistente operativo WhatsApp: gestione appuntamenti con calendario, slot temporanei e follow-up automatici |
 | **Δash** | Rilasciato | Gestionale modulare data-first per flussi operativi: workflow configurabili, stati, checklist e storico completo |
 
 ## 💼 Servizi
